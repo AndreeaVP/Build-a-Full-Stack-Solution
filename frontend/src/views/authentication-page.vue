@@ -1,6 +1,9 @@
 <template>
   <div class="authentication">
     <div class="auth-container">
+      <div v-if="successMessage" class="success-message">{{ successMessage }}</div>
+      <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
+      
       <div class="auth-form">
 
         <div class="welcome-section">
@@ -19,6 +22,7 @@
             v-model="loginData.email"
             placeholder="E-mail: example@yahoo.com"
             @focus="clearPlaceholder('email')"
+            required
           />
           </div>
 
@@ -30,8 +34,11 @@
             v-model="loginData.password"
             placeholder="Password"
             @focus="clearPlaceholder('password')"
+            required
           />
           </div>
+
+          
 
           <button @click="login" class="submit-button">Login</button>
 
@@ -41,6 +48,8 @@
         <!-- Signup form -->
         <div v-if="!isLogin" class="signup-form">
           <h3 class="page-title">Sign up</h3>
+          <form @submit.prevent="signup">
+
           <div class="form-field">
             <font-awesome-icon class="icon" icon="user-circle" />
           <input class="input-field"
@@ -49,6 +58,8 @@
             v-model="signupData.firstName"
             placeholder="First Name"
             @focus="clearPlaceholder('firstName')"
+            required
+            pattern="[A-Za-z -']+"
           />
           </div>
 
@@ -60,6 +71,8 @@
             v-model="signupData.lastName"
             placeholder="Last Name"
             @focus="clearPlaceholder('lastName')"
+            required
+            pattern="[A-Za-z -']+"
           />
           </div>
 
@@ -71,6 +84,7 @@
             v-model="signupData.email"
             placeholder="E-mail: example@yahoo.com"
             @focus="clearPlaceholder('email')"
+            required
           />
           </div>
 
@@ -80,8 +94,9 @@
             type="password"
             id="password"
             v-model="signupData.password"
-            placeholder="Password"
+            placeholder="Password (8 characters long)"
             @focus="clearPlaceholder('password')"
+            required
           />
           </div>
 
@@ -93,10 +108,12 @@
             v-model="signupData.confirmPassword"
             placeholder="Confirm Password"
             @focus="clearPlaceholder('confirmPassword')"
+            required
           />
           </div>
 
           <button @click="signup" class="submit-button">Create Your Account</button>
+        </form>
 
           <p>Already have an account? <a class="toggle-link" @click="toggleForm('login')">Log in</a></p>
         </div>
@@ -110,6 +127,7 @@
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faUserCircle, faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
+import axios from 'axios';
 
 library.add(faUserCircle, faEnvelope, faLock);
 
@@ -124,6 +142,8 @@ export default {
         email: '',
         password: '',
       },
+      errorMessage: '',
+
       signupData: {
         firstName: '',
         lastName: '',
@@ -131,6 +151,7 @@ export default {
         password: '',
         confirmPassword: '',
       },
+      successMessage: '',
     };
   },
   methods: {
@@ -140,7 +161,99 @@ export default {
     clearPlaceholder(field) {
       this.loginData[field] = '';
     },
-  },
+    isValidName(name) {
+        const namePattern = /^[A-Za-z]+$/;
+        return namePattern.test(name);
+    },
+    isValidEmailFormat(email) {
+        const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+        return emailPattern.test(email);
+    },
+
+    async signup() {
+      if (!this.signupData.firstName || !this.signupData.lastName || !this.signupData.email || !this.signupData.password || !this.signupData.confirmPassword) {
+        this.errorMessage = 'Please fill in all required fields.';
+        return;
+      }
+
+      if (!this.isValidName(this.signupData.firstName) || !this.isValidName(this.signupData.lastName)) {
+        this.errorMessage = 'Please enter a valid first name and last name (letters only).';
+        return; 
+      }
+
+      if (!this.isValidEmailFormat(this.signupData.email)) {
+        this.errorMessage = 'Please enter a valid email address.';
+        return; 
+      }
+
+      if (this.signupData.password !== this.signupData.confirmPassword) {
+        this.errorMessage = 'Passwords do not match.';
+        return;
+      }
+
+      if (this.signupData.password.length < 8) {
+        this.errorMessage = 'Password must be at least 8 characters long.';
+        return;
+      }
+
+      try {
+        const response = await axios.post('/api/auth/signup', this.signupData);
+
+        if (response.status === 201) {
+          this.successMessage = 'response.data.message';
+          this.errorMessage = '';
+          setTimeout(() => {
+          this.navigateToHomePage();
+          }, 2000);
+          
+        } else {
+          this.errorMessage = 'Error: ' + response.statusText;
+        }
+      } catch (error) {
+        this.errorMessage = 'Error: ' + error.message;
+        
+
+        if (error.response.status === 500) {
+          return;
+        }
+      }
+    },
+
+    async login() {
+      if (!this.loginData.email || !this.loginData.password) {
+        this.errorMessage = 'Please fill in both email and password fields.';
+        return;
+      }
+      try {
+        const response = await axios.post('/api/auth/login', this.loginData);
+
+      if (response.status === 200) {
+        this.$store.commit('setToken', response.data.token);
+        this.$store.commit('setUser', response.data.user);
+        this.successMessage = 'Login successful!';
+        this.errorMessage = '';
+        setTimeout(() => {
+        this.navigateToHomePage();
+      }, 2000);
+      } else {
+      this.errorMessage = 'Invalid email or password. Please try again.';
+      }
+    } catch (error) {
+      if (error.response.status === 401) {
+        this.errorMessage = 'Invalid email or password. Please try again.';
+      } else {
+        this.errorMessage = 'Error: ' + error.message;
+      }
+    }
+},
+    showSuccessMessage(message) {
+      this.successMessage = message;
+    },
+
+    navigateToHomePage() {
+      this.$router.push({ name: 'home' });
+    }
+  }
 };
 </script>
 
@@ -205,8 +318,7 @@ font-size: 23px;
   height: 30px;
   width: 250px; 
   border-radius: 5px;
-  border-style: double;
-  border-color: rgb(229, 230, 230);
+  border: 1px solid rgb(229, 230, 230);
   box-shadow: 0 7px 15px rgba(49, 48, 48, 0.2);
 }
 
@@ -247,6 +359,20 @@ font-size: 23px;
 
 .toggle-link:hover {
   color: #036194; 
+}
+
+.success-message {
+  color: white;
+  background-color: #55eb5a;
+  padding: 8px;
+  border-radius: 5px; 
+}
+
+.error-message {
+  color: white;
+  background-color: red;
+  padding: 8px;
+  border-radius: 5px; 
 }
 
 </style>
