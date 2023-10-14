@@ -200,21 +200,20 @@ export default {
         const response = await axios.post('/api/auth/signup', this.signupData);
 
         if (response.status === 201) {
-          this.successMessage = 'response.data.message';
+          this.successMessage = 'User created successfully';
           this.errorMessage = '';
           setTimeout(() => {
+          this.successMessage = '';
           this.navigateToHomePage();
-          }, 2000);
-          
+          }, 1200);          
         } else {
           this.errorMessage = 'Error: ' + response.statusText;
         }
       } catch (error) {
-        this.errorMessage = 'Error: ' + error.message;
-        
-
         if (error.response.status === 500) {
-          return;
+          this.errorMessage = 'Internal Server Error: Please try again later.';
+        } else {
+          this.errorMessage = 'Error: ' + error.message;
         }
       }
     },
@@ -233,8 +232,9 @@ export default {
         this.successMessage = 'Login successful!';
         this.errorMessage = '';
         setTimeout(() => {
+        this.successMessage = '';
         this.navigateToHomePage();
-      }, 2000);
+      }, 1200);
       } else {
       this.errorMessage = 'Invalid email or password. Please try again.';
       }
@@ -245,7 +245,7 @@ export default {
         this.errorMessage = 'Error: ' + error.message;
       }
     }
-},
+  },
     showSuccessMessage(message) {
       this.successMessage = message;
     },
