@@ -13,6 +13,12 @@ export default createStore({
     setUser(state, user) {
       state.user = user;
     },
+    clearToken(state) {
+      state.token = null;
+    },
+    clearUser(state) {
+      state.user = null;
+    },
   },
   actions: {
     async signup({ commit }, userData) {
@@ -44,6 +50,10 @@ export default createStore({
       } catch (error) {
         return Promise.reject(error);
       }
+    },
+    async logout({ commit }) {
+      commit('clearToken');
+      commit('clearUser');
     },
   },
   
