@@ -14,31 +14,16 @@
         <!-- Login form -->
         <div v-if="isLogin" class="login-form">
           <h3 class="page-title">Log in</h3>
+
           <div class="form-field">
             <font-awesome-icon class="icon" icon="envelope" />
-          <input class="input-field"
-            type="email"
-            id="email"
-            v-model="loginData.email"
-            placeholder="E-mail: example@yahoo.com"
-            @focus="clearPlaceholder('email')"
-            required
-          />
+          <input class="input-field" type="email" id="email" v-model="loginData.email" placeholder="E-mail: example@yahoo.com" @focus="clearPlaceholder('email')" required/>
           </div>
 
           <div class="form-field">
             <font-awesome-icon class="icon" icon="lock" />
-          <input class="input-field"
-            type="password"
-            id="password"
-            v-model="loginData.password"
-            placeholder="Password"
-            @focus="clearPlaceholder('password')"
-            required
-          />
+          <input class="input-field" type="password" id="password" v-model="loginData.password" placeholder="Password" @focus="clearPlaceholder('password')" required/>
           </div>
-
-          
 
           <button @click="login" class="submit-button">Login</button>
 
@@ -52,64 +37,27 @@
 
           <div class="form-field">
             <font-awesome-icon class="icon" icon="user-circle" />
-          <input class="input-field"
-            type="text"
-            id="firstName"
-            v-model="signupData.firstName"
-            placeholder="First Name"
-            @focus="clearPlaceholder('firstName')"
-            required
-            pattern="[A-Za-z -']+"
-          />
+          <input class="input-field" type="text" id="firstName" v-model="signupData.firstName" placeholder="First Name" @focus="clearPlaceholder('firstName')" required pattern="[A-Za-z -']+"/>
           </div>
 
           <div class="form-field">
             <font-awesome-icon class="icon" icon="user-circle" />
-          <input class="input-field"
-            type="text"
-            id="lastName"
-            v-model="signupData.lastName"
-            placeholder="Last Name"
-            @focus="clearPlaceholder('lastName')"
-            required
-            pattern="[A-Za-z -']+"
-          />
+          <input class="input-field" type="text" id="lastName" v-model="signupData.lastName" placeholder="Last Name" @focus="clearPlaceholder('lastName')" required pattern="[A-Za-z -']+"/>
           </div>
 
           <div class="form-field">
             <font-awesome-icon class="icon" icon="envelope" />
-          <input class="input-field"
-            type="email"
-            id="email"
-            v-model="signupData.email"
-            placeholder="E-mail: example@yahoo.com"
-            @focus="clearPlaceholder('email')"
-            required
-          />
+          <input class="input-field" type="email" id="email" v-model="signupData.email" placeholder="E-mail: example@yahoo.com" @focus="clearPlaceholder('email')" required/>
           </div>
 
           <div class="form-field">
             <font-awesome-icon class="icon" icon="lock" />
-          <input class="input-field"
-            type="password"
-            id="password"
-            v-model="signupData.password"
-            placeholder="Password (8 characters long)"
-            @focus="clearPlaceholder('password')"
-            required
-          />
+          <input class="input-field" type="password" id="password" v-model="signupData.password" placeholder="Password (8 characters long)" @focus="clearPlaceholder('password')" required/>
           </div>
 
           <div class="form-field">
             <font-awesome-icon class="icon" icon="lock" />
-          <input class="input-field"
-            type="password"
-            id="confirmPassword"
-            v-model="signupData.confirmPassword"
-            placeholder="Confirm Password"
-            @focus="clearPlaceholder('confirmPassword')"
-            required
-          />
+          <input class="input-field" type="password" id="confirmPassword" v-model="signupData.confirmPassword" placeholder="Confirm Password" @focus="clearPlaceholder('confirmPassword')" required/>
           </div>
 
           <button @click="signup" class="submit-button">Create Your Account</button>
