@@ -3,46 +3,87 @@
     <div class="logo-container">
       <img src="@/assets/logo-white.png" alt="Logo" class="logo" />
     </div>
-  
+
     <div class="navbar">
       <ul class="nav-list">
-        <li><router-link to="/home">Home</router-link></li>
-        <li><router-link to="/search">Search</router-link></li>
-        <li><router-link to="/notification">Notification</router-link></li>
-        <li><router-link to="/userprofile">User Profile</router-link></li>
+        <li>
+          <router-link to="/home">
+            <span v-if="isLargeScreen" class="nav-item-text">Home</span>
+            <font-awesome-icon v-if="isSmallScreen" class="icon" :icon="['fas', 'home']" />
+          </router-link>
+        </li>
+        <li>
+          <router-link to="/search">
+            <span v-if="isLargeScreen" class="nav-item-text">Search</span>
+            <font-awesome-icon v-if="isSmallScreen" class="icon" :icon="['fas', 'search']" />
+          </router-link>
+        </li>
+        <li>
+          <router-link to="/notification">
+            <span v-if="isLargeScreen" class="nav-item-text">Notification</span>
+            <font-awesome-icon v-if="isSmallScreen" class="icon" :icon="['fas', 'bell']" />
+          </router-link>
+        </li>
+        <li>
+          <router-link to="/userprofile">
+            <span v-if="isLargeScreen" class="nav-item-text">User Profile</span>
+            <font-awesome-icon v-if="isSmallScreen" class="icon" :icon="['fas', 'user']" />
+          </router-link>
+        </li>
       </ul>
 
       <button @click="logout" class="logout-button">
         <font-awesome-icon class="icon" :icon="['fas', 'power-off']" />
       </button>
-
     </div>
-      
   </header>
 </template>
-  
-  
+
 <script>
+import { computed, ref, watch, onMounted } from 'vue';
+
 export default {
+  setup() {
+    const screenWidth = ref(window.innerWidth);
+    const isSmallScreen = computed(() => screenWidth.value < 768);
+    const isLargeScreen = computed(() => screenWidth.value >= 768);
+
+    const updateScreenWidth = () => {
+      screenWidth.value = window.innerWidth;
+    };
+
+    watch(screenWidth, () => {
+    });
+
+    onMounted(() => {
+      window.addEventListener('resize', updateScreenWidth);
+    });
+
+    return {
+      isSmallScreen,
+      isLargeScreen,
+    };
+  },
   methods: {
     async logout() {
       try {
-      this.$store.dispatch('logout');
-      this.$router.push('/');
-    } catch (error) {
-      console.error(error);
-    }
-   },
+        this.$store.dispatch('logout');
+        this.$router.push('/');
+      } catch (error) {
+        console.error(error);
+      }
+    },
   },
 };
 </script>
-  
+
+
 <style scoped>
 .app-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 50px;
+  padding: 10px 20px;
   height: 10vh;
   background-color: #222;
 }
@@ -67,10 +108,12 @@ export default {
 .nav-list a {
   text-decoration: none;
   color: white;
+  display: flex;
+  align-items: center;
 }
 
 .logout-button {
-  background-color: red; 
+  background-color: red;
   color: white;
   padding: 5px 10px;
   border: none;
@@ -83,5 +126,42 @@ export default {
   font-size: 15px;
 }
 
+@media screen and (max-width: 767px) {
+  .app-header {
+    height: 5vh;
+    padding: 10px;
+  }
+
+  .logo {
+    width: 110px;
+    height: auto;
+  }
+
+  .navbar {
+    gap: 20px;
+  }
+
+  .nav-list {
+    gap: 20px;
+  }
+
+  .nav-list a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .nav-item-text {
+    display: none;
+  }
+
+  .logout-button {
+  padding: 4px 5px;
+}
+
+  .icon {
+  font-size: 13px;
+}
+}
+
 </style>
-  
