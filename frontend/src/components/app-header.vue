@@ -157,11 +157,11 @@ export default {
 
   .logout-button {
   padding: 4px 5px;
-}
+  }
 
   .icon {
   font-size: 13px;
-}
+  }
 }
 
 </style>
