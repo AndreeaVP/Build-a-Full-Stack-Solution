@@ -7,23 +7,40 @@ dotenv.config({ path: '../.env' });
 exports.signup = (req, res) => {
     const { firstName, lastName, email, password } = req.body;
 
-    bcrypt.hash(password, 8)
-        .then(hash => {
+    db.query('SELECT * FROM users WHERE email = ?', [email], (emailQueryError, emailResults) => {
+        if (emailQueryError) {
+            console.error('Database Error:', emailQueryError);
+            return res.status(500).json({ error: 'Server error: Unable to check email availability.' });
+        }
+
+        if (emailResults.length > 0) {
+            return res.status(400).json({ error: 'Email already in use' });
+        }
+
+        bcrypt.hash(password, 8, (hashError, hash) => {
+            if (hashError) {
+                console.error('Bcrypt Error:', hashError);
+                return res.status(500).json({ error: 'Server error: Unable to hash the password.' });
+            }
+
             db.query(
                 'INSERT INTO users (firstName, lastName, email, password) VALUES (?, ?, ?, ?)',
                 [firstName, lastName, email, hash],
-                (err, result) => {
-                    if (err) {
-                        return res.status(500).json({ error: err.message });
+                (dbError, result) => {
+                    if (dbError) {
+                        console.error('Database Error:', dbError);
+                        return res.status(500).json({ error: 'Server error: Unable to complete the registration process.' });
                     }
+
                     res.status(201).json({ message: 'User registered successfully' });
                 }
             );
-        })
-        .catch(error => {
-            res.status(500).json({ error: error.message });
         });
+    });
 };
+
+
+  
 
 exports.login = (req, res) => {
     const { email, password } = req.body;
@@ -50,7 +67,7 @@ exports.login = (req, res) => {
 
                 delete user.password;
 
-                res.status(200).json({ user, token });
+                res.status(200).json({ user, token, message: 'Login successful!' });
             })
             .catch(error => {
                 res.status(500).json({ error: error.message });
