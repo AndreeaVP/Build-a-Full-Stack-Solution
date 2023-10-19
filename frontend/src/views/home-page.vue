@@ -17,15 +17,30 @@
         <label for="file-upload" class="file-label"> Upload File
           <font-awesome-icon :icon="['fas', 'upload']" class="icon-post"/>
         </label>
-        <input type="file" id="file-upload" class="file-input" @change="onFileChange"/>
-        <button class="post-button"> Post
+        <input type="file" id="file-upload" name="image_url" class="file-input" @change="onFileChange" />
+        <button class="post-button" @click="createPost"> Post
           <font-awesome-icon :icon="['fas', 'paper-plane']" class="icon-post"/>
         </button>
       </div>
     </div>
+
+    <div class="post-container" v-for="post in posts" :key="post.post_id">
+      <div class="user-section">
+        <img :src="post.user_image" alt="User Profile" class="user-image" />
+        <div class="user-details">
+          <div class="user-name">{{ post.user_name }}</div>
+          <div class="post-date">{{ post.created_at }}</div>
+        </div>
+      </div>
+
+      <div class="post-text">
+        {{ post.textual_post }}
+      </div>
+
+      <img :src="post.image_url" alt="Posted Image" class="post-image" />
+    </div>
   </div>
 </template>
-
 
 <script>
 import AppHeader from "@/components/app-header.vue";
@@ -39,8 +54,14 @@ export default {
     return {
       postContent: "",
       selectedFile: null,
+      posts: [],
     };
   },
+
+  mounted() {
+    this.fetchPosts();
+  },
+
   methods: {
     onFileChange(event) {
       const file = event.target.files[0];
@@ -51,7 +72,21 @@ export default {
     clearSelectedFile() {
       this.selectedFile = null;
     },
+    async fetchPosts() {
+      try {
+        const response = await axios.get("/api/posts");
+
+        if (response.status === 200) {
+          this.posts = response.data;
+        } else {
+          console.error("Failed to fetch posts");
+        }
+      } catch (error) {
+        console.error("Error fetching posts", error);
+      }
+    },
       async createPost() {
+        console.log('createPost function called');
     try {
     const formData = new FormData();
     formData.append("user_id", this.$store.state.user.userId);
@@ -61,11 +96,19 @@ export default {
       formData.append("file", this.selectedFile);
     }
 
-    const response = await axios.post("/api/posts", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    console.log('FormData:', formData);
+
+    const config = {
+  headers: {
+    "Content-Type": "multipart/form-data",
+    "Authorization": `Bearer ${this.$store.state.token}`,
+  },
+};
+
+const response = await axios.post("/api/posts", formData, config);
+
+
+    console.log('Response:', response);
 
     if (response.status === 201) {
       this.successMessage = "Post created successfully";
@@ -76,6 +119,7 @@ export default {
       this.errorMessage = "Failed to create the post";
     }
   } catch (error) {
+    console.error("Error creating the post:", error);
     this.errorMessage = "Failed to create the post";
   }
 },
@@ -175,6 +219,50 @@ export default {
   font-weight: bold;
   color: red;
   cursor: pointer;
+}
+
+
+.post-container {
+  border: 1px solid #ccc;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  margin: 10px 0;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.user-section {
+  display: flex;
+  align-items: center;
+}
+
+.user-image {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-weight: bold;
+}
+
+.post-date {
+  color: #777;
+}
+
+.post-text {
+  margin: 10px 0;
+}
+
+.post-image {
+  max-width: 100%;
+  height: auto;
 }
 
 </style>
