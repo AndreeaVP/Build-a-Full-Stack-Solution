@@ -105,11 +105,18 @@ export default {
   },
   methods: {
     toggleForm(formType) {
-      this.isLogin = formType === 'login';
-    },
-    clearPlaceholder(field) {
-      this.loginData[field] = '';
-    },
+    this.errorMessage = ''; 
+    this.successMessage = '';
+
+    if (formType === 'login') {
+      this.isLogin = true;
+    } else if (formType === 'signup') {
+      this.isLogin = false;
+    }
+  },
+  clearPlaceholder(field) {
+    this.loginData[field] = '';
+  },
     isValidName(name) {
         const namePattern = /^[A-Za-z]+$/;
         return namePattern.test(name);
@@ -146,30 +153,30 @@ export default {
   }
 
   try {
-  const response = await axios.post('/api/auth/signup', this.signupData);
-  console.log('Response data:', response.data);
+    const response = await axios.post('/api/auth/signup', this.signupData);
+    console.log('Response data:', response.data);
 
-  if (response.status === 201) {
-    this.successMessage = response.data.message;
-    this.errorMessage = '';
-    setTimeout(() => {
-      this.successMessage = '';
-      this.navigateToLoginPage();
-    }, 1200);
+    if (response.status === 201) {
+      this.successMessage = response.data.message;
+      this.errorMessage = '';
+      setTimeout(() => {
+        this.successMessage = '';
+        this.navigateToLoginPage();
+      }, 1200);
   } else if (response.status === 400) {
     this.errorMessage = response.data.error;
-  } else {
-    this.errorMessage = 'Error: ' + response.statusText;
-  }
-} catch (error) {
-  if (error.response && error.response.status === 500) {
-    this.errorMessage = error.response.data.error;
-  } else if (error.response) {
-    this.errorMessage = 'Error: ' + error.response.statusText;
-  } else {
-    this.errorMessage = 'Network Error: Unable to connect to the server';
-  }
-} 
+    } else {
+      this.errorMessage = 'Error: ' + response.statusText;
+    }
+  } catch (error) {
+    if (error.response && error.response.status === 500) {
+  this.errorMessage = error.response.data.error;
+} else if (error.response) {
+  this.errorMessage = 'Error: ' + error.response.statusText;
+} else {
+  this.errorMessage = 'Network Error: Unable to connect to the server';
+}
+  } 
 },
 
     async login() {
