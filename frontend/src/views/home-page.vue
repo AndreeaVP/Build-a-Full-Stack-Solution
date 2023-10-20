@@ -24,7 +24,7 @@
       </div>
     </div>
 
-    <div class="post-container" v-for="post in posts" :key="post.post_id">
+    <div class="post-container create-post" v-for="post in posts" :key="post.post_id">
       <div class="user-section">
         <img :src="post.user_image" alt="User Profile" class="user-image" />
         <div class="user-details">
@@ -72,21 +72,35 @@ export default {
     clearSelectedFile() {
       this.selectedFile = null;
     },
-    async fetchPosts() {
-      try {
-        const response = await axios.get("/api/posts");
 
-        if (response.status === 200) {
-          this.posts = response.data;
-        } else {
-          console.error("Failed to fetch posts");
-        }
-      } catch (error) {
-        console.error("Error fetching posts", error);
+    async fetchPosts() {
+
+  if (this.$store.state.token) {
+    try {
+      const response = await axios.get("/api/posts", {
+        headers: {
+          Authorization: `Bearer ${this.$store.state.token}`,
+        },
+      });
+
+      if (response.status === 200) {
+        this.posts = response.data;
+      } else {
+        console.error("Failed to fetch posts");
       }
-    },
+    } catch (error) {
+      console.error("Error fetching posts", error);
+    }
+  } else {
+    console.error("User is not authenticated. Please log in.");
+  }
+},
+
       async createPost() {
         console.log('createPost function called');
+
+        console.log('User ID in Vuex Store:', this.$store.state.user.userId);
+
     try {
     const formData = new FormData();
     formData.append("user_id", this.$store.state.user.userId);
@@ -96,13 +110,13 @@ export default {
       formData.append("file", this.selectedFile);
     }
 
-    console.log('FormData:', formData);
+    console.log('User Data in Vuex Store:', this.$store.state.user);
 
     const config = {
   headers: {
     "Content-Type": "multipart/form-data",
     "Authorization": `Bearer ${this.$store.state.token}`,
-  },
+  }
 };
 
 const response = await axios.post("/api/posts", formData, config);
@@ -114,7 +128,7 @@ const response = await axios.post("/api/posts", formData, config);
       this.successMessage = "Post created successfully";
       this.errorMessage = "";
       this.postContent = "";
-      this.selectedFile = null;
+      this.selectedFile = "";
     } else {
       this.errorMessage = "Failed to create the post";
     }
@@ -138,7 +152,7 @@ const response = await axios.post("/api/posts", formData, config);
   background-color: #fff;
   border: 1px solid #e0e0e0;
   border-radius: 5px;
-  max-width: 40%; 
+  max-width: 50%; 
   margin: 30px auto; 
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
 }
@@ -197,6 +211,7 @@ const response = await axios.post("/api/posts", formData, config);
 
 .icon-post {
   color: rgb(59, 4, 137);
+  font-size: 13px;
 }
 
 .uploaded-image-container {
@@ -220,7 +235,6 @@ const response = await axios.post("/api/posts", formData, config);
   color: red;
   cursor: pointer;
 }
-
 
 .post-container {
   border: 1px solid #ccc;
@@ -263,6 +277,38 @@ const response = await axios.post("/api/posts", formData, config);
 .post-image {
   max-width: 100%;
   height: auto;
+}
+
+.post-container {
+  display: flex;
+  flex-direction: column; 
+  justify-content: center; 
+  align-items: center; 
+  padding: 20px 30px;
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  max-width: 50%; 
+  margin: 30px auto; 
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+.create-post {
+  padding: 10px;
+  max-width: 100%;
+}
+
+.profile-image {
+  width: 30px;
+  height: 30px;
+  margin-right: 10px;
+}
+
+.post-input {
+  padding: 5px;
+  height: 30px;
+}
 }
 
 </style>
