@@ -4,8 +4,11 @@ import axios from 'axios';
 export default createStore({
   state: {
     token: null, 
-    user: null,
+    user: {
+      userId: null,
+    },
   },
+
   mutations: {
     setToken(state, token) {
       state.token = token;
@@ -20,6 +23,7 @@ export default createStore({
       state.user = null;
     },
   },
+
   actions: {
     async signup({ commit }, userData) {
       try {
@@ -36,21 +40,26 @@ export default createStore({
         return Promise.reject(error);
       }
     },
+
     async login({ commit }, credentials) {
-      try {
-        const response = await axios.post('/api/auth/login', credentials);
-  
-        if (response.data.token) {
-          commit('setToken', response.data.token);
-          commit('setUser', response.data.user);
-          return response;
-        } else {
-          return Promise.reject('Invalid response');
-        }
-      } catch (error) {
-        return Promise.reject(error);
-      }
-    },
+  try {
+    const response = await axios.post('/api/auth/login', credentials);
+
+    if (response.data.token) {
+      const token = response.data.token;
+      const user = response.data.user;
+      user.userId = user.id;
+      commit('setToken', token);
+      commit('setUser', response.data.user);
+      return response;
+    } else {
+      return Promise.reject('Invalid response');
+    }
+  } catch (error) {
+    return Promise.reject(error);
+  }
+},
+
     async logout({ commit }) {
       commit('clearToken');
       commit('clearUser');
