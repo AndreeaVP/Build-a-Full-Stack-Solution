@@ -249,7 +249,7 @@ export default {
   background: white;
   padding: 20px;
   border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
 .auth-form {
@@ -291,7 +291,7 @@ font-size: 23px;
   width: 250px; 
   border-radius: 5px;
   border: 1px solid rgb(229, 230, 230);
-  box-shadow: 0 7px 15px rgba(49, 48, 48, 0.2);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
 .icon {
@@ -316,7 +316,7 @@ font-size: 23px;
   border: none;
   border-radius: 5px; 
   cursor: pointer;
-  box-shadow: 1px 3px 5px rgba(29, 28, 28, 0.2);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
 .submit-button:hover {
