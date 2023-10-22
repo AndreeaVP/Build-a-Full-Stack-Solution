@@ -13,20 +13,19 @@
     </section>
 
     <section id="search-results">
-      <h2 class="search-results-title">Search Results</h2>
-      <ul>
-        <li v-for="result in searchResults" :key="result.id" class="search-result-item">
-          <a :href="result.link">{{ result.title }}</a>
-          <p>{{ result.description }}</p>
-        </li>
-      </ul>
+      <div class="user-container">
+        <div v-for="user in searchResults" :key="user.user_id" class="user-card">
+          <img :src="user.image_url" alt="User Image" class="user-image">
+          <span class="user-name">{{ user.firstname }} {{ user.lastname }}</span>
+        </div>
+      </div>
     </section>
-    
   </div>
 </template>
 
 <script>
 import AppHeader from "@/components/app-header.vue";
+import axios from "axios";
 
 export default {
   components: {
@@ -39,10 +38,26 @@ export default {
     };
   },
   methods: {
-    
+    async fetchAllUsers() {
+  try {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${this.$store.state.token}`,
+      },
+    };
+    const response = await axios.get('/api/user', config);
+    this.searchResults = response.data.users;
+  } catch (error) {
+    console.error('Error fetching users:', error);
   }
+}
+  },
+  created() {
+    this.fetchAllUsers();
+  },
 };
 </script>
+
 
 <style scoped>
 .search-form {
@@ -73,6 +88,50 @@ export default {
   color: white;
 }
 
+.user-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin: 50px 50px;
+}
+
+.user-card {
+  display: flex;
+  width: calc(30% - 10px);
+  margin: 0 5px 20px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ccc;
+  padding: 15px;
+  border-radius: 5px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.user-image {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.user-name {
+  margin-top: 10px;
+}
+
+@media (max-width: 1100px) {
+  .user-card {
+    width: calc(25% - 10px);
+    margin-left: 5px; 
+    margin-right: 5px; 
+    height: 30px;
+  }
+
+  .user-image {
+    width: 40px;
+    height: 40px;
+  }
+}
+
 @media (max-width: 768px) {
 .page-title {
   font-size: 20px;
@@ -83,8 +142,14 @@ export default {
   padding: 8px 5px;
 }
 
-.search-results-title {
-  font-size: 20px;
+.user-container {
+  margin: 40px 20px;
+}
+
+.user-card {
+  width: 100%;
+  margin-left: 5px;
+  margin-right: 5px;
 }
 }
 
