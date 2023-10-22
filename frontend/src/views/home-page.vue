@@ -97,10 +97,6 @@ export default {
 },
 
       async createPost() {
-        console.log('createPost function called');
-
-        console.log('User ID in Vuex Store:', this.$store.state.user.userId);
-
     try {
     const formData = new FormData();
     formData.append("user_id", this.$store.state.user.userId);
@@ -110,8 +106,6 @@ export default {
       formData.append("file", this.selectedFile);
     }
 
-    console.log('User Data in Vuex Store:', this.$store.state.user);
-
     const config = {
   headers: {
     "Content-Type": "multipart/form-data",
@@ -120,9 +114,6 @@ export default {
 };
 
 const response = await axios.post("/api/posts", formData, config);
-
-
-    console.log('Response:', response);
 
     if (response.status === 201) {
       this.successMessage = "Post created successfully";
@@ -154,7 +145,7 @@ const response = await axios.post("/api/posts", formData, config);
   border-radius: 5px;
   max-width: 50%; 
   margin: 30px auto; 
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
 .user-profile {
@@ -165,10 +156,11 @@ const response = await axios.post("/api/posts", formData, config);
 }
 
 .profile-image {
-  width: 50px;
-  height: 50px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   margin-right: 30px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
 .post-input {
@@ -238,7 +230,7 @@ const response = await axios.post("/api/posts", formData, config);
 
 .post-container {
   border: 1px solid #ccc;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
   margin: 10px 0;
   padding: 10px;
   display: flex;
@@ -255,6 +247,7 @@ const response = await axios.post("/api/posts", formData, config);
   height: 50px;
   border-radius: 50%;
   margin-right: 10px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
 .user-details {
@@ -290,7 +283,7 @@ const response = await axios.post("/api/posts", formData, config);
   border-radius: 5px;
   max-width: 50%; 
   margin: 30px auto; 
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
 @media (max-width: 768px) {
