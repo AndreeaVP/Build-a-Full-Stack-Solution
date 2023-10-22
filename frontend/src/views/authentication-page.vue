@@ -105,78 +105,88 @@ export default {
   },
   methods: {
     toggleForm(formType) {
-    this.errorMessage = ''; 
-    this.successMessage = '';
+      this.errorMessage = ''; 
+      this.successMessage = '';
 
     if (formType === 'login') {
       this.isLogin = true;
     } else if (formType === 'signup') {
       this.isLogin = false;
     }
-  },
-  clearPlaceholder(field) {
-    this.loginData[field] = '';
-  },
+    },
+    clearPlaceholder(field) {
+      this.loginData[field] = '';
+    },
     isValidName(name) {
-        const namePattern = /^[A-Za-z]+$/;
-        return namePattern.test(name);
+      const namePattern = /^[A-Za-z]+$/;
+      return namePattern.test(name);
     },
     isValidEmailFormat(email) {
-        const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-        return emailPattern.test(email);
+      const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+      return emailPattern.test(email);
     },
 
     async signup() {
-  if (!this.signupData.firstName || !this.signupData.lastName || !this.signupData.email || !this.signupData.password || !this.signupData.confirmPassword) {
-    this.errorMessage = 'Please fill in all required fields';
-    return;
-  }
+      if (!this.signupData.firstName || !this.signupData.lastName || !this.signupData.email || !this.signupData.password || !this.signupData.confirmPassword) {
+        this.errorMessage = 'Please fill in all required fields';
+        return;
+      }
 
-  if (!this.isValidName(this.signupData.firstName) || !this.isValidName(this.signupData.lastName)) {
-    this.errorMessage = 'Please enter a valid first name and last name (letters only)';
-    return;
-  }
+      if (!this.isValidName(this.signupData.firstName) || !this.isValidName(this.signupData.lastName)) {
+        this.errorMessage = 'Please enter a valid first name and last name (letters only)';
+        return;
+      }
 
-  if (!this.isValidEmailFormat(this.signupData.email)) {
-    this.errorMessage = 'Please enter a valid email address';
-    return;
-  }
+      if (!this.isValidEmailFormat(this.signupData.email)) {
+        this.errorMessage = 'Please enter a valid email address';
+        return;
+      }
 
-  if (this.signupData.password !== this.signupData.confirmPassword) {
-    this.errorMessage = 'Passwords do not match';
-    return;
-  }
+      if (this.signupData.password !== this.signupData.confirmPassword) {
+        this.errorMessage = 'Passwords do not match';
+        return;
+      }
 
-  if (this.signupData.password.length < 8) {
-    this.errorMessage = 'Password must be at least 8 characters long';
-    return;
-  }
+      if (this.signupData.password.length < 8) {
+       this.errorMessage = 'Password must be at least 8 characters long';
+       return;
+      }
 
-  try {
-    const response = await axios.post('/api/auth/signup', this.signupData);
-    console.log('Response data:', response.data);
+      try {
+        const response = await axios.post('/api/auth/signup', this.signupData);
 
-    if (response.status === 201) {
-      this.successMessage = response.data.message;
-      this.errorMessage = '';
+      if (response.status === 201) {
+        this.successMessage = response.data.message;
+        this.errorMessage = '';
+        this.email = this.signupData.email;
+
+        this.signupData = {
+        firstName: '',
+        lastName: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+        };
+
+      this.isLogin = true;
+
       setTimeout(() => {
         this.successMessage = '';
-        this.navigateToLoginPage();
-      }, 1200);
-  } else if (response.status === 400) {
-    this.errorMessage = response.data.error;
-    } else {
-      this.errorMessage = 'Error: ' + response.statusText;
-    }
-  } catch (error) {
-    if (error.response && error.response.status === 500) {
-  this.errorMessage = error.response.data.error;
-} else if (error.response) {
-  this.errorMessage = 'Error: ' + error.response.statusText;
-} else {
-  this.errorMessage = 'Network Error: Unable to connect to the server';
-}
-  } 
+      }, 1500);
+      } else if (response.status === 400) {
+        this.errorMessage = response.data.error;
+      } else {
+        this.errorMessage = 'Error: ' + response.statusText;
+      }
+      } catch (error) {
+      if (error.response && error.response.status === 500) {
+        this.errorMessage = error.response.data.error;
+      } else if (error.response) {
+        this.errorMessage = 'Error: ' + error.response.statusText;
+      } else {
+        this.errorMessage = 'Network Error: Unable to connect to the server';
+      }
+    } 
 },
 
     async login() {
@@ -189,6 +199,7 @@ export default {
 
       if (response.status === 200) {
         this.$store.commit('setToken', response.data.token);
+        console.log('Authentication Token:', response.data.token);
         this.$store.commit('setUser', response.data.user);
         this.successMessage = response.data.message;
         this.errorMessage = '';
@@ -214,10 +225,6 @@ export default {
     navigateToHomePage() {
       this.$router.push({ name: 'home' });
     },
-
-    navigateToLoginPage() {
-      this.$router.push({ name: 'login' });
-    }
   }
 };
 </script>
