@@ -72,16 +72,10 @@
 </template>
 
 <script>
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { library } from '@fortawesome/fontawesome-svg-core';
-import { faUserCircle, faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
-
-library.add(faUserCircle, faEnvelope, faLock);
 
 export default {
   components: {
-    FontAwesomeIcon,
   },
   data() {
     return {
