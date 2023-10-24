@@ -37,12 +37,12 @@
 
           <div class="form-field">
             <font-awesome-icon class="icon" icon="user-circle" />
-          <input class="input-field" type="text" id="firstName" v-model="signupData.firstName" placeholder="First Name" @focus="clearPlaceholder('firstName')" required pattern="[A-Za-z -']+"/>
+          <input class="input-field" type="text" id="firstName" v-model="signupData.firstName" placeholder="First Name" @focus="clearPlaceholder('firstName')"/>
           </div>
 
           <div class="form-field">
             <font-awesome-icon class="icon" icon="user-circle" />
-          <input class="input-field" type="text" id="lastName" v-model="signupData.lastName" placeholder="Last Name" @focus="clearPlaceholder('lastName')" required pattern="[A-Za-z -']+"/>
+          <input class="input-field" type="text" id="lastName" v-model="signupData.lastName" placeholder="Last Name" @focus="clearPlaceholder('lastName')"/>
           </div>
 
           <div class="form-field">
@@ -121,66 +121,57 @@ export default {
     },
 
     async signup() {
-      if (!this.signupData.firstName || !this.signupData.lastName || !this.signupData.email || !this.signupData.password || !this.signupData.confirmPassword) {
+    if (!this.signupData.firstName || !this.signupData.lastName || !this.signupData.email || !this.signupData.password || !this.signupData.confirmPassword) {
         this.errorMessage = 'Please fill in all required fields';
         return;
-      }
+    }
 
-      if (!this.isValidName(this.signupData.firstName) || !this.isValidName(this.signupData.lastName)) {
+    if (!this.isValidName(this.signupData.firstName) || !this.isValidName(this.signupData.lastName)) {
         this.errorMessage = 'Please enter a valid first name and last name (letters only)';
         return;
-      }
+    }
 
-      if (!this.isValidEmailFormat(this.signupData.email)) {
+    if (!this.isValidEmailFormat(this.signupData.email)) {
         this.errorMessage = 'Please enter a valid email address';
         return;
-      }
+    }
 
-      if (this.signupData.password !== this.signupData.confirmPassword) {
+    if (this.signupData.password !== this.signupData.confirmPassword) {
         this.errorMessage = 'Passwords do not match';
         return;
-      }
+    }
 
-      if (this.signupData.password.length < 8) {
-       this.errorMessage = 'Password must be at least 8 characters long';
-       return;
-      }
+    if (this.signupData.password.length < 8) {
+        this.errorMessage = 'Password must be at least 8 characters long';
+        return;
+    }
 
-      try {
-        const response = await axios.post('/api/auth/signup', this.signupData);
+    try {
+    const response = await axios.post('/api/auth/signup', this.signupData);
 
-      if (response.status === 201) {
+    if (response.status === 201) {
         this.successMessage = response.data.message;
         this.errorMessage = '';
-        this.email = this.signupData.email;
 
-        this.signupData = {
-        firstName: '',
-        lastName: '',
-        email: '',
-        password: '',
-        confirmPassword: '',
-        };
+        this.isLogin = true;
 
-      this.isLogin = true;
-
-      setTimeout(() => {
-        this.successMessage = '';
-      }, 1500);
-      } else if (response.status === 400) {
-        this.errorMessage = response.data.error;
-      } else {
+        setTimeout(() => {
+            this.successMessage = '';
+        }, 1500);
+    } else {
         this.errorMessage = 'Error: ' + response.statusText;
-      }
-      } catch (error) {
-      if (error.response && error.response.status === 500) {
-        this.errorMessage = error.response.data.error;
-      } else if (error.response) {
-        this.errorMessage = 'Error: ' + error.response.statusText;
-      } else {
+    }
+} catch (error) {
+    if (error.response) {
+        if (error.response.status === 500) {
+            this.errorMessage = error.response.data.error;
+        } else {
+            this.errorMessage = 'Error: ' + error.response.statusText;
+        }
+    } else {
         this.errorMessage = 'Network Error: Unable to connect to the server';
-      }
-    } 
+    }
+}
 },
 
     async login() {
