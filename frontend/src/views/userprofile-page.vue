@@ -100,6 +100,7 @@ export default {
 
 <style scoped>
 .user-profile {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -110,7 +111,7 @@ export default {
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
   max-width: 50%;
   margin: 30px auto;
-  background: linear-gradient(45deg, #f7a2e2, #F0F0F0);
+  background: linear-gradient(45deg,  #fb7a94,#FFEDBC);
   color: #000;
 }
 
@@ -136,7 +137,6 @@ export default {
 }
 
 .settings-container {
-  position: relative;
   display: flex;
   flex-direction: column;
   padding: 20px;
