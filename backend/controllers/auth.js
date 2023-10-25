@@ -8,25 +8,25 @@ exports.signup = (req, res) => {
     const { firstName, lastName, email, password } = req.body;
 
     try {
-        bcrypt.hash(password, 8)
-            .then(hash => {
-                db.query(
-                    'INSERT INTO users (firstName, lastName, email, password) VALUES (?, ?, ?, ?)',
-                    [firstName, lastName, email, hash],
-                    (err, result) => {
-                        if (err) {
-                            return res.status(500).json({ error: err.message });
-                        }
-                        res.status(201).json({ message: 'User registered successfully' });
+        bcrypt.hash(password, 8, (hashError, hash) => {
+            if (hashError) {
+                throw hashError;
+            }
+
+            db.query(
+                'INSERT INTO users (firstName, lastName, email, password) VALUES (?, ?, ?, ?)',
+                [firstName, lastName, email, hash],
+                (err, result) => {
+                    if (err) {
+                        throw err;
                     }
-                );
-            })
-            .catch(error => {
-                res.status(500).json({ error: error.message });
-            });
+                    res.status(201).json({ message: 'User registered successfully' });
+                }
+            );
+        });
     } catch (error) {
         console.error('Error:', error);
-        return res.status(500).json({ error: 'Server error: Unable to complete the registration process.' });
+        res.status(500).json({ error: 'Server error: Unable to complete the registration process.' });
     }
 };
 
