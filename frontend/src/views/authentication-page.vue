@@ -33,7 +33,6 @@
         <!-- Signup form -->
         <div v-if="!isLogin" class="signup-form">
           <h3 class="page-title">Sign up</h3>
-          <form @submit.prevent="signup">
 
           <div class="form-field">
             <font-awesome-icon class="icon" icon="user-circle" />
@@ -61,7 +60,6 @@
           </div>
 
           <button @click="signup" class="submit-button">Create Your Account</button>
-        </form>
 
           <p>Already have an account? <a class="toggle-link" @click="toggleForm('login')">Log in</a></p>
         </div>
@@ -149,9 +147,19 @@ export default {
     try {
     const response = await axios.post('/api/auth/signup', this.signupData);
 
+    console.log('Response:', response);
+
     if (response.status === 201) {
         this.successMessage = response.data.message;
-        this.errorMessage = '';
+        this.errorMessage = '';  
+
+        this.signupData = {
+            firstName: '',
+            lastName: '',
+            email: '',
+            password: '',
+            confirmPassword: '',
+        };
 
         this.isLogin = true;
 
@@ -159,20 +167,25 @@ export default {
             this.successMessage = '';
         }, 1500);
     } else {
-        this.errorMessage = 'Error: ' + response.statusText;
+        if (response.status === 400) {
+            this.errorMessage = response.data.error;
+        } else {
+            this.errorMessage = 'Error: ' + response.statusText;
+        }
     }
-} catch (error) {
+    } catch (error) {
     if (error.response) {
         if (error.response.status === 500) {
-            this.errorMessage = error.response.data.error;
+            this.errorMessage = 'Server error: Unable to complete the registration process.';
         } else {
             this.errorMessage = 'Error: ' + error.response.statusText;
         }
     } else {
         this.errorMessage = 'Network Error: Unable to connect to the server';
     }
-}
-},
+    }
+
+  },
 
     async login() {
       if (!this.loginData.email || !this.loginData.password) {
