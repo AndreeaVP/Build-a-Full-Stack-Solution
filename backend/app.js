@@ -1,5 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
+const winston = require('winston');
 const helmet = require('helmet');
 const path = require('path');
 require('dotenv').config();
@@ -11,6 +12,23 @@ const likeRoutes = require('./routes/likes');
 const commentRoutes = require('./routes/comments');
 
 const app = express();
+
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.simple(),
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({ filename: 'combined.log' }),
+  ],
+});
+
+const morganStream = {
+  write: (message) => {
+    logger.info(message);
+  },
+};
+
+app.use(morgan('combined', { stream: morganStream }));
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
