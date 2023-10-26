@@ -184,7 +184,6 @@ export default {
         this.errorMessage = 'Network Error: Unable to connect to the server';
     }
     }
-
   },
 
     async login() {
@@ -197,7 +196,6 @@ export default {
 
       if (response.status === 200) {
         this.$store.commit('setToken', response.data.token);
-        console.log('Authentication Token:', response.data.token);
         this.$store.commit('setUser', response.data.user);
         this.successMessage = response.data.message;
         this.errorMessage = '';
@@ -216,9 +214,6 @@ export default {
       }
     }
   },
-    showSuccessMessage(message) {
-      this.successMessage = message;
-    },
 
     navigateToHomePage() {
       this.$router.push({ name: 'home' });
