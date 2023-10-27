@@ -2,18 +2,25 @@ const db = require('../config/database');
 const fs = require('fs');
 
 exports.createPost = (req, res) => {
-    const { user_id, textual_post, image_url } = req.body;
-  
-    db.query(
-      'INSERT INTO posts (user_id, textual_post, image_url) VALUES (?, ?, ?)',
-      [user_id, textual_post, image_url],
-      (err, results) => {
-        if (err) {
-          return res.status(500).json({ error: err.message });
-        }
-        res.status(201).json({ message: 'Post created successfully' });
+  const body = req.file
+    ? {
+        ...req.body,
+        image_url: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
       }
-    );
+    : { ...req.body };
+
+  const { user_id, textual_post, image_url } = body;
+
+  db.query(
+    'INSERT INTO posts (user_id, textual_post, image_url) VALUES (?, ?, ?)',
+    [user_id, textual_post, image_url],
+    (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      res.status(201).json({ message: 'Post created successfully' });
+    }
+  );
 };
 
 exports.getAllPosts = (req, res) => {
