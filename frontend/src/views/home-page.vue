@@ -3,14 +3,18 @@
     <app-header></app-header>
 
     <div class="create-post">
+
+      <div v-if="successMessage" class="success-message">{{ successMessage }}</div>
+      <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
+
       <div class="user-profile">
-        <img class="profile-image" src="@/assets/dfg.jpg" alt="User Profile Image" />
+        <img class="profile-image" src="@/assets/logo-white.png" alt="User Profile Image" />
         <input type="text" class="post-input" placeholder="What's on your mind?" v-model="postContent" />
       </div>
 
       <div class="uploaded-image-container">
-        <img class="uploaded-image" :src="selectedFile" alt="Uploaded Image" v-if="selectedFile" />
-        <button class="delete-button" @click="clearSelectedFile" v-if="selectedFile">x</button>
+        <img class="uploaded-image" :src="previewUrl" alt="Uploaded Image" v-if="previewUrl" />
+        <button class="delete-button" @click="clearSelectedFile" v-if="previewUrl">x</button>
       </div>
 
       <div class="post-actions">       
@@ -42,94 +46,87 @@
   </div>
 </template>
 
+
 <script>
 import AppHeader from "@/components/app-header.vue";
 import axios from "axios";
 
 export default {
   components: {
-    AppHeader,
-  },
+  AppHeader,
+},
   data() {
     return {
-      postContent: "",
-      selectedFile: null,
+      postContent: '',
+      selectedFile: null, 
+      previewUrl: null,
+      successMessage: '',
+      errorMessage: '',
       posts: [],
     };
   },
-
-  mounted() {
-    this.fetchPosts();
-  },
-
   methods: {
     onFileChange(event) {
-      const file = event.target.files[0];
-      if (file) {
-        this.selectedFile = URL.createObjectURL(file);
+      this.selectedFile = event.target.files[0];
+
+      if (this.selectedFile) {
+        this.previewUrl = URL.createObjectURL(this.selectedFile);
+      } else {
+        this.previewUrl = null;
       }
-      },
+    },
+    
     clearSelectedFile() {
       this.selectedFile = null;
+      this.previewUrl = null;
+    },
+    
+    async createPost() {
+      try {
+        const formData = new FormData();
+        formData.append('textual_post', this.postContent);
+        formData.append('image_url', this.selectedFile);
+
+        const token = this.$store.getters.getToken; 
+
+        const headers = {
+          Authorization: `Bearer ${token}`,
+        };
+
+
+      const response = await axios.post('/api/posts', formData, { headers });
+
+      this.successMessage = response.data.message;
+      this.postContent = ''; 
+      this.selectedFile = null; 
+      this.previewUrl = null;
+
+      await this.fetchPosts();
+      } catch (error) {
+        this.errorMessage = 'Error creating the post.';
+      }
     },
 
     async fetchPosts() {
+      try {
+        const token = this.$store.getters.getToken;
 
-  if (this.$store.state.token) {
-    try {
-      const response = await axios.get("/api/posts", {
-        headers: {
-          Authorization: `Bearer ${this.$store.state.token}`,
-        },
-      });
+        const headers = {
+          Authorization: `Bearer ${token}`,
+      };
 
-      if (response.status === 200) {
-        this.posts = response.data;
-      } else {
-        console.error("Failed to fetch posts");
+        const response = await axios.get('/api/posts', { headers });
+
+        this.posts = response.data.posts; 
+      } catch (error) {
+      console.error('Error fetching posts:', error);
       }
-    } catch (error) {
-      console.error("Error fetching posts", error);
-    }
-  } else {
-    console.error("User is not authenticated. Please log in.");
-  }
-},
-
-      async createPost() {
-    try {
-    const formData = new FormData();
-    formData.append("user_id", this.$store.state.user.userId);
-    formData.append("textual_post", this.postContent);
-
-    if (this.selectedFile) {
-      formData.append("file", this.selectedFile);
-    }
-
-    const config = {
-  headers: {
-    "Content-Type": "multipart/form-data",
-    "Authorization": `Bearer ${this.$store.state.token}`,
-  }
-};
-
-const response = await axios.post("/api/posts", formData, config);
-
-    if (response.status === 201) {
-      this.successMessage = "Post created successfully";
-      this.errorMessage = "";
-      this.postContent = "";
-      this.selectedFile = "";
-    } else {
-      this.errorMessage = "Failed to create the post";
-    }
-  } catch (error) {
-    console.error("Error creating the post:", error);
-    this.errorMessage = "Failed to create the post";
-  }
-},
-
-},
+    },
+  },
+  
+  created() {
+    this.fetchPosts();
+  },
 };
 </script>
 
@@ -284,6 +281,20 @@ const response = await axios.post("/api/posts", formData, config);
   max-width: 50%; 
   margin: 30px auto; 
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.success-message {
+  color: white;
+  background-color: #55eb5a;
+  padding: 8px;
+  border-radius: 5px; 
+}
+
+.error-message {
+  color: white;
+  background-color: red;
+  padding: 8px;
+  border-radius: 5px; 
 }
 
 @media (max-width: 768px) {
