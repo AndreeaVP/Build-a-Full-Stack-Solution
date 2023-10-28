@@ -22,7 +22,7 @@
           <font-awesome-icon :icon="['fas', 'upload']" class="icon-post"/>
         </label>
         <input type="file" id="file-upload" name="image_url" class="file-input" @change="onFileChange" />
-        <button class="post-button" @click="createPost"> Post
+        <button class="post-button" @click="createPost">Post
           <font-awesome-icon :icon="['fas', 'paper-plane']" class="icon-post"/>
         </button>
       </div>
@@ -47,7 +47,7 @@
 </template>
 
 
-<script>
+<script>  
 import AppHeader from "@/components/app-header.vue";
 import axios from "axios";
 
@@ -68,40 +68,58 @@ export default {
   methods: {
     onFileChange(event) {
       this.selectedFile = event.target.files[0];
-
-      if (this.selectedFile) {
-        this.previewUrl = URL.createObjectURL(this.selectedFile);
-      } else {
-        this.previewUrl = null;
-      }
+      this.previewUrl = URL.createObjectURL(this.selectedFile);
+      console.log('Selected File:', this.selectedFile);
+  console.log('Preview URL:', this.previewUrl);
     },
     
     clearSelectedFile() {
       this.selectedFile = null;
       this.previewUrl = null;
+      console.log('Selected File After Clearing:', this.selectedFile);
     },
     
     async createPost() {
-      try {
+
+        const user_id = this.$store.state.user.user_id;
+        console.log('Selected File Before FormData:', this.selectedFile.name);
         const formData = new FormData();
+        formData.append("user_id", user_id);
         formData.append('textual_post', this.postContent);
         formData.append('image_url', this.selectedFile);
 
-        const token = this.$store.getters.getToken; 
+        console.log('Selected File After FormData:', this.selectedFile.name);
 
-        const headers = {
-          Authorization: `Bearer ${token}`,
-        };
+        const config = {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        "Authorization": `Bearer ${this.$store.state.token}`,
+      },
+    };
 
+    try {
 
-      const response = await axios.post('/api/posts', formData, { headers });
+      const response = await axios.post("/api/posts", formData, config);
 
-      this.successMessage = response.data.message;
-      this.postContent = ''; 
-      this.selectedFile = null; 
-      this.previewUrl = null;
+      console.log('Response:', response);
 
-      await this.fetchPosts();
+      if (response.status === 201) {
+        this.successMessage = response.data.message;
+        this.postContent = '';
+        this.errorMessage = "";
+        this.selectedFile = null;
+        this.previewUrl = null;
+
+        console.log('Selected File After Clearing:', this.selectedFile ? this.selectedFile.name : 'null');
+
+        await this.fetchPosts();
+        setTimeout(() => {
+        this.successMessage = '';
+      }, 1500);
+      } else {
+      this.errorMessage = "Failed to create the post";
+    }
+
       } catch (error) {
         this.errorMessage = 'Error creating the post.';
       }
@@ -115,15 +133,20 @@ export default {
           Authorization: `Bearer ${token}`,
       };
 
-        const response = await axios.get('/api/posts', { headers });
+      const response = await axios.get('/api/posts', { headers });
 
-        this.posts = response.data.posts; 
+      console.log('Response data:', response.data);
+
+      this.posts = response.data.posts; 
+
+      console.log('Posts:', this.posts);
+      
       } catch (error) {
       console.error('Error fetching posts:', error);
       }
     },
   },
-  
+
   created() {
     this.fetchPosts();
   },
