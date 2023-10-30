@@ -1,14 +1,16 @@
 const db = require('../config/database');
 const bcrypt = require('bcrypt');
 
-
 exports.getAllUsers = (req, res) => {
-  db.query('SELECT * FROM users', (err, results) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
+  db.query(
+    `SELECT user_id, firstname, lastname, email, image_url, created_at FROM users WHERE active = 'true'`,
+    (err, result) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      res.status(200).json(result);
     }
-    res.status(200).json({ users: results });
-  });
+  );
 };
 
 exports.getUserById = (req, res) => {
