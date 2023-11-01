@@ -2,11 +2,10 @@
   <div>
     <app-header></app-header>
 
+    <div v-if="successMessage" class="success-message">{{ successMessage }}</div>
+    <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
+
     <div class="create-post">
-
-      <div v-if="successMessage" class="success-message">{{ successMessage }}</div>
-      <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
-
       <div class="user-profile">
         <img class="profile-image" src="@/assets/logo-white.png" alt="User Profile Image" />
         <input type="text" class="post-input" placeholder="What's on your mind?" v-model="postContent" />
