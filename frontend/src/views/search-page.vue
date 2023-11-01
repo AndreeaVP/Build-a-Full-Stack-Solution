@@ -14,7 +14,7 @@
 
     <section id="search-results">
       <div class="user-container">
-        <div v-for="user in filteredSearchResults" :key="user.user_id" class="user-card" @click="redirectToUserProfile(user.user_id)">
+        <div v-for="user in filteredSearchResults" :key="user.user_id" class="user-card" @click="navigateToUserProfile(user.user_id)">
           <img :src="user.image_url" alt="User Image" class="user-image">
           <span class="user-name">{{ user.firstname }} {{ user.lastname }}</span>
         </div>
@@ -64,8 +64,12 @@ export default {
       }
     },
 
-    redirectToUserProfile(userId) {
-      this.$router.push({ name: 'userprofile', params: { id: userId } });
+    navigateToUserProfile(user_id) {
+      if (user_id === this.$store.state.user.user_id) {
+        this.$router.push({ name: 'userprofile', query: { user_id } });
+      } else {
+        this.$router.push({ name: 'userprofile', query: { id: user_id } });
+      }
     },
 
     search: debounce(function() {
@@ -147,7 +151,7 @@ export default {
   width: calc(30% - 10px);
   margin: 0 5px 20px;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;;
   border: 1px solid #ccc;
   padding: 15px;
   border-radius: 5px;
@@ -156,13 +160,14 @@ export default {
 
 .user-image {
   width: 50px;
+  margin-left: 20px;
   height: 50px;
   border-radius: 50%;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
 .user-name {
-  margin-top: 10px;
+  margin-left: 30px;
 }
 
 @media (max-width: 1100px) {
@@ -175,7 +180,12 @@ export default {
 
   .user-image {
     width: 40px;
+    margin-left: 0;
     height: 40px;
+  }
+
+  .user-name {
+    margin-left: 10px;
   }
 }
 
