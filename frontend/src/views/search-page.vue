@@ -104,8 +104,6 @@ export default {
 };
 </script>
 
-
-
 <style scoped>
 .search-form {
   display: flex;
