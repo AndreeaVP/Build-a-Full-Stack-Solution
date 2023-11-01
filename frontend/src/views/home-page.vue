@@ -70,7 +70,7 @@ export default {
       this.selectedFile = event.target.files[0];
       this.previewUrl = URL.createObjectURL(this.selectedFile);
       console.log('Selected File:', this.selectedFile);
-  console.log('Preview URL:', this.previewUrl);
+      console.log('Preview URL:', this.previewUrl);
     },
     
     clearSelectedFile() {
@@ -91,11 +91,11 @@ export default {
         console.log('Selected File After FormData:', this.selectedFile.name);
 
         const config = {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        "Authorization": `Bearer ${this.$store.state.token}`,
-      },
-    };
+          headers: {
+            "Content-Type": "multipart/form-data",
+            "Authorization": `Bearer ${this.$store.state.token}`,
+          },
+        };
 
     try {
 
