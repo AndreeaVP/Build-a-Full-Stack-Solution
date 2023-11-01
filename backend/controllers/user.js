@@ -43,9 +43,9 @@ exports.updateUser = (req, res) => {
         updateFields.email = email;
     }
     if (password) {
-        const hashedPassword = bcrypt.hashSync(password, 8);
-        updateFields.password = hashedPassword;
-    }
+      const hashedPassword = bcrypt.hashSync(password, 8);
+      updateFields.password = hashedPassword;
+  }
     if (image_url) {
         updateFields.image_url = image_url;
     }
