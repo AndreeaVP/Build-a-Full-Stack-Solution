@@ -151,14 +151,25 @@ export default {
     },
   },
 
-  async created() {
+
+async created() {
   let userId = this.$route.query.id;
 
   if (!userId) {
-    userId = this.$store.state.user.user_id;
+    userId = this.$store.state.user?.user_id; 
+  }
+
+  if (!userId) {
+    console.error("User ID is not defined.");
+    return;
   }
 
   const token = localStorage.getItem('token');
+
+  if (!token) {
+    console.error("Token is not defined in local storage.");
+    return;
+  }
 
   try {
     const response = await axios.get(`/api/user/${userId}`, {
@@ -167,10 +178,13 @@ export default {
       },
     });
     this.user = response.data.user;
+    console.log('User Data:', this.user);
   } catch (error) {
     console.error("Error fetching user data:", error);
+
   }
 },
+
 
 };
 </script>
