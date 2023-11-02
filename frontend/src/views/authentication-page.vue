@@ -197,6 +197,8 @@ export default {
       if (response.status === 200) {
         this.$store.commit('setToken', response.data.token);
         this.$store.commit('setUser', response.data.user);
+        localStorage.setItem('token', response.data.token);
+        
         this.successMessage = response.data.message;
         this.errorMessage = '';
         setTimeout(() => {
