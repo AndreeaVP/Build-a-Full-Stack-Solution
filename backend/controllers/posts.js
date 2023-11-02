@@ -56,15 +56,12 @@ exports.getPostById = (req, res) => {
 
 exports.updatePost = (req, res) => {
     const postId = req.params.postId;
-    const { textual_post, image_url } = req.body;
+    const { textual_post } = req.body;
   
     const updateFields = {};
   
     if (textual_post) {
       updateFields.textual_post = textual_post;
-    }
-    if (image_url) {
-      updateFields.image_url = image_url;
     }
   
     if (Object.keys(updateFields).length === 0) {
