@@ -52,6 +52,38 @@
       <textarea v-else v-model="newTextualPost" class="update-post-input"></textarea>
 
       <img crossorigin='anonymous' :src="post.image_url" alt="Posted Image" class="post-image" />
+
+      <!-- Like and Dislike Section -->
+      <div class="like-comment-section">
+        <div class="like-dislike-section">
+          <div @click="likePost(post)" class="like-icon">
+            <font-awesome-icon :icon="['fas', 'thumbs-up']" class="icon" />
+          </div>
+          <div @click="dislikePost(post)" class="dislike-icon">
+            <font-awesome-icon :icon="['fas', 'thumbs-down']" class="icon" />
+          </div>
+        </div>
+
+      <!-- Comment Section -->
+        <div class="comment-section">
+          <div @click="toggleCommentInput(post)" class="comment-icon">
+            <font-awesome-icon :icon="['fas', 'comment']" class="icon" />
+          </div>
+        </div>
+      </div>   
+
+        <div class="comments" v-if="post.showCommentInput">
+          <input type="text" v-model="post.newComment" @keyup.enter="addComment(post)" placeholder="Add a comment" />
+          <font-awesome-icon @click="addComment(post)" :icon="['fas', 'paper-plane']" class="icon" />
+        </div>
+
+        <div class="comments">
+          <div class="comment" v-for="comment in post.comments" :key="comment.comment_id">
+            {{ comment.comment }}
+          </div>
+        </div>
+
+
     </div>
 
   </div>
@@ -94,12 +126,18 @@ export default {
     },
 
     toggleEditMode(post) {
-    this.editingPostId = post.post_id;
-    this.newTextualPost = post.textual_post;
+      this.editingPostId = post.post_id;
+      this.newTextualPost = post.textual_post;
     },
-    
-    async createPost() {
 
+    toggleCommentInput(post) {
+      post.showCommentInput = !post.showCommentInput;
+      if (post.showCommentInput) {
+        this.fetchComments(post);
+      }
+    },
+
+    async createPost() {
         const user_id = this.$store.state.user.user_id;
         const token = localStorage.getItem('token');
         const formData = new FormData();
@@ -179,17 +217,83 @@ export default {
           this.successMessage = '';
           this.errorMessage = 'Failed to update the post';
         }
-    } catch (error) {
-      console.error('Error updating post:', error);
-      this.successMessage = '';
-      this.errorMessage = 'Error updating the post';
-    }
-  },
+      } catch (error) {
+        console.error('Error updating post:', error);
+        this.successMessage = '';
+        this.errorMessage = 'Error updating the post';
+      }
+    },
 
+    async addComment(post) {
+      try {
+        const postId = post.post_id;
+        const commentText = post.newComment;
+
+        const token = localStorage.getItem('token');
+
+        const headers = {
+          Authorization: `Bearer ${token}`,
+        };
+
+        const response = await axios.post(`/api/comments/${postId}`, {
+          postId: postId,
+          userId: this.user.user_id,
+          comment: commentText,
+        }, { headers });
+
+        if (response.status === 201) {
+          post.comments.push(response.data);
+          post.newComment = '';
+          this.toggleCommentInput(post);
+          this.successMessage = 'Comment added successfully';
+          this.errorMessage = '';
+          setTimeout(() => {
+            this.successMessage = '';
+          }, 1500);
+
+        } else {
+          this.errorMessage = 'Failed to add the comment. Please try again.';     
+        }
+      } catch (error) {
+        console.error('Error adding comment:', error);
+        this.errorMessage = 'An error occurred while adding the comment. Please try again later.';
+      }
+    },
+
+    async loadPostsAndComments() {
+      await this.fetchPosts();
+      for (const post of this.posts) {
+      await this.fetchComments(post);
+      }
+    },
+
+    async fetchComments(post) {
+      try {
+        const postId = post.post_id;
+        const token = localStorage.getItem('token');
+
+        const headers = {
+          Authorization: `Bearer ${token}`,
+        };
+
+        const response = await axios.get(`/api/comments/${postId}`, { headers });
+
+        if (response.status === 200) {
+          post.comments = response.data.comments;
+        } else {
+          console.error('Error fetching comments:', response.status);
+          this.errorMessage = 'Failed to fetch comments. Please try again.';
+        }
+      } catch (error) {
+        console.error('Error fetching comments:', error);
+        this.errorMessage = 'An error occurred while fetching comments. Please try again.';
+      }
+    },
   },
 
   created() {
     this.fetchPosts();
+    this.loadPostsAndComments();
   },
 };
 </script>
@@ -355,7 +459,7 @@ export default {
   font-size: 17px;
   cursor: pointer;
   margin-bottom: 15px;
-  color: blue;
+  color: green;
 }
 
 .delete-post-icon {
@@ -390,6 +494,47 @@ export default {
 .post-image {
   max-width: 100%;
   height: auto;
+}
+
+.like-comment-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.like-dislike-section {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  gap: 30px;
+}
+
+.like-icon {
+  cursor: pointer;
+  color: green;
+}
+
+.dislike-icon {
+  cursor: pointer;
+  color: red;
+}
+
+.comment-icon {
+  cursor: pointer;
+  color: #333;
+}
+  
+.comment-section {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+}
+
+.comments {
+  flex-direction: column;
+  padding: 10px;
+  background-color: #f5f5f5;
+  border-radius: 5px;
 }
 
 .success-message {
