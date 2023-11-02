@@ -50,7 +50,7 @@ export default createStore({
       const user = response.data.user;
       user.userId = user.id;
       commit('setToken', token);
-      commit('setUser', response.data.user);
+      commit('setUser', user);
       return response;
     } else {
       return Promise.reject('Invalid response');
