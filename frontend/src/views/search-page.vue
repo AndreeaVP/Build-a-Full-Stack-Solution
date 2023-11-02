@@ -48,10 +48,13 @@ export default {
   },
   methods: {
     async performSearch() {
+
+      const token = localStorage.getItem('token');
+
       try {
         const config = {
           headers: {
-            Authorization: `Bearer ${this.$store.state.token}`,
+            Authorization: `Bearer ${token}`,
           },
         };
         const response = await axios.get('/api/user', {
@@ -85,10 +88,13 @@ export default {
     }, 300),
 
     async loadInitialData() {
+
+      const token = localStorage.getItem('token');
+
       try {
         const config = {
           headers: {
-            Authorization: `Bearer ${this.$store.state.token}`,
+            Authorization: `Bearer ${token}`,
           },
         };
         const response = await axios.get('/api/user', config);
