@@ -31,8 +31,8 @@
       <div class="user-section">
         <img :src="post.user_image" alt="User Profile" class="user-image" />
         <div class="user-details">
-          <div class="user-name">{{ post.user_name }}</div>
-          <div class="post-date">{{ post.created_at }}</div>
+          <div class="user-name">{{ post.firstname }} {{ post.lastname }}</div>
+          <div class="post-date">{{ formatDate(post.created_at) }}</div>
         </div>
       </div>
 
@@ -40,7 +40,7 @@
         {{ post.textual_post }}
       </div>
 
-      <img :src="post.image_url" alt="Posted Image" class="post-image" />
+      <img crossorigin='anonymous' :src="post.image_url" alt="Posted Image" class="post-image" />
     </div>
   </div>
 </template>
@@ -68,30 +68,31 @@ export default {
     onFileChange(event) {
       this.selectedFile = event.target.files[0];
       this.previewUrl = URL.createObjectURL(this.selectedFile);
-      console.log('Selected File:', this.selectedFile);
-      console.log('Preview URL:', this.previewUrl);
     },
     
     clearSelectedFile() {
       this.selectedFile = null;
       this.previewUrl = null;
-      console.log('Selected File After Clearing:', this.selectedFile);
+    },
+
+    formatDate(dateTimeString) {
+      const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+      return new Date(dateTimeString).toLocaleDateString(undefined, options);
     },
     
     async createPost() {
 
         const user_id = this.$store.state.user.user_id;
-        console.log('Selected File Before FormData:', this.selectedFile.name);
         const formData = new FormData();
         formData.append("user_id", user_id);
         formData.append('textual_post', this.postContent);
         formData.append('image_url', this.selectedFile);
 
-        console.log('Selected File After FormData:', this.selectedFile.name);
-
         const config = {
           headers: {
             "Content-Type": "multipart/form-data",
+
+          // retrieve from local storage
             "Authorization": `Bearer ${this.$store.state.token}`,
           },
         };
@@ -100,16 +101,12 @@ export default {
 
       const response = await axios.post("/api/posts", formData, config);
 
-      console.log('Response:', response);
-
       if (response.status === 201) {
         this.successMessage = response.data.message;
         this.postContent = '';
         this.errorMessage = "";
         this.selectedFile = null;
         this.previewUrl = null;
-
-        console.log('Selected File After Clearing:', this.selectedFile ? this.selectedFile.name : 'null');
 
         await this.fetchPosts();
         setTimeout(() => {
@@ -134,11 +131,7 @@ export default {
 
       const response = await axios.get('/api/posts', { headers });
 
-      console.log('Response data:', response.data);
-
       this.posts = response.data.posts; 
-
-      console.log('Posts:', this.posts);
       
       } catch (error) {
       console.error('Error fetching posts:', error);
