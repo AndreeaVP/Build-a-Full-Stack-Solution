@@ -141,53 +141,50 @@ export default {
     async fetchPosts() {
       try {
         const token = localStorage.getItem('token');
-
         const headers = {
           Authorization: `Bearer ${token}`,
       };
 
       const response = await axios.get('/api/posts', { headers });
-
       this.posts = response.data.posts; 
-      
       } catch (error) {
       console.error('Error fetching posts:', error);
       }
     },
 
     async updatePostText(post) {
-  try {
-    const postId = post.post_id;
-    const updatedText = this.newTextualPost;
-    const token = localStorage.getItem('token');
+      try {
+        const postId = post.post_id;
+        const updatedText = this.newTextualPost;
+        const token = localStorage.getItem('token');
 
-    const response = await axios.put(`/api/posts/${postId}`, {
-      textual_post: updatedText,
-    }, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+        const response = await axios.put(`/api/posts/${postId}`, {
+          textual_post: updatedText,
+        }, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-    if (response.status === 200) {
-      this.successMessage = 'Post updated successfully';
-      this.errorMessage = '';
-      this.editingPostId = null;
+        if (response.status === 200) {
+          this.successMessage = 'Post updated successfully';
+          this.errorMessage = '';
+          this.editingPostId = null;
 
-      await this.fetchPosts();
-      setTimeout(() => {
-        this.successMessage = '';
-      }, 1500);
-    } else {
+          await this.fetchPosts();
+          setTimeout(() => {
+          this.successMessage = '';
+          }, 1500);
+        } else {
+          this.successMessage = '';
+          this.errorMessage = 'Failed to update the post';
+        }
+    } catch (error) {
+      console.error('Error updating post:', error);
       this.successMessage = '';
-      this.errorMessage = 'Failed to update the post';
+      this.errorMessage = 'Error updating the post';
     }
-  } catch (error) {
-    console.error('Error updating post:', error);
-    this.successMessage = '';
-    this.errorMessage = 'Error updating the post';
-  }
-},
+  },
 
   },
 
