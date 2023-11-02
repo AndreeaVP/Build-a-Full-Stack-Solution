@@ -7,8 +7,8 @@
 
     <div class="create-post">
       <div class="user-profile">
-        <img class="profile-image" src="@/assets/logo-white.png" alt="User Profile Image" />
-        <input type="text" class="post-input" placeholder="What's on your mind?" v-model="postContent" />
+        <font-awesome-icon :icon="['fas', 'user']" class="user-icon" />
+        <textarea class="post-input" placeholder="What's on your mind?" v-model="postContent"></textarea>
       </div>
 
       <div class="uploaded-image-container">
@@ -27,21 +27,33 @@
       </div>
     </div>
 
-    <div class="post-container create-post" v-for="post in posts" :key="post.post_id">
+    <div class="post-container" v-for="post in posts" :key="post.post_id">
       <div class="user-section">
-        <img :src="post.user_image" alt="User Profile" class="user-image" />
+        <font-awesome-icon :icon="['fas', 'user']" class="user-icon" />
         <div class="user-details">
           <div class="user-name">{{ post.firstname }} {{ post.lastname }}</div>
           <div class="post-date">{{ formatDate(post.created_at) }}</div>
         </div>
       </div>
 
-      <div class="post-text">
+      <div class="post-options">
+        <font-awesome-icon :icon="['fas', 'edit']" class="edit-post-icon" @click="toggleEditMode(post)" />
+        <font-awesome-icon :icon="['fas', 'trash']" class="delete-post-icon" @click="deletePost(post)" />
+      </div>
+
+      <div>
+        <font-awesome-icon v-if="editingPostId === post.post_id" :icon="['fas', 'check']" class="save-post-icon" @click="updatePostText(post)" />
+      </div>
+
+      <div class="post-text" v-if="editingPostId !== post.post_id">
         {{ post.textual_post }}
       </div>
 
+      <textarea v-else v-model="newTextualPost" class="update-post-input"></textarea>
+
       <img crossorigin='anonymous' :src="post.image_url" alt="Posted Image" class="post-image" />
     </div>
+
   </div>
 </template>
 
@@ -62,6 +74,7 @@ export default {
       successMessage: '',
       errorMessage: '',
       posts: [],
+      editingPostId: null,
     };
   },
   methods: {
@@ -78,6 +91,11 @@ export default {
     formatDate(dateTimeString) {
       const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
       return new Date(dateTimeString).toLocaleDateString(undefined, options);
+    },
+
+    toggleEditMode(post) {
+    this.editingPostId = post.post_id;
+    this.newTextualPost = post.textual_post;
     },
     
     async createPost() {
@@ -136,6 +154,41 @@ export default {
       console.error('Error fetching posts:', error);
       }
     },
+
+    async updatePostText(post) {
+  try {
+    const postId = post.post_id;
+    const updatedText = this.newTextualPost;
+    const token = localStorage.getItem('token');
+
+    const response = await axios.put(`/api/posts/${postId}`, {
+      textual_post: updatedText,
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.status === 200) {
+      this.successMessage = 'Post updated successfully';
+      this.errorMessage = '';
+      this.editingPostId = null;
+
+      await this.fetchPosts();
+      setTimeout(() => {
+        this.successMessage = '';
+      }, 1500);
+    } else {
+      this.successMessage = '';
+      this.errorMessage = 'Failed to update the post';
+    }
+  } catch (error) {
+    console.error('Error updating post:', error);
+    this.successMessage = '';
+    this.errorMessage = 'Error updating the post';
+  }
+},
+
   },
 
   created() {
@@ -174,6 +227,15 @@ export default {
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
+.user-icon {
+  color: #333;  
+  font-size: 30px;
+  padding: 10px;
+  border-radius: 50%;
+  margin-right: 30px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3); 
+}
+
 .post-input {
   flex: 1;
   width: 100%;
@@ -198,7 +260,7 @@ export default {
 .file-label {
   cursor: pointer;  
   margin-right: 50px;
-  color: rgb(70, 70, 72);
+  color: rgb(5, 5, 153);
 }
 
 .file-input {
@@ -206,10 +268,14 @@ export default {
 }
 
 .post-button {
-  width: 70px;
-  height: 25px;
+  cursor: pointer;
   margin-left: 50px;
   color: rgb(70, 70, 72);
+  background-color: white;
+  border: none;
+  color: rgb(5, 5, 153);
+  font-family: Georgia, "Times New Roman", Times, serif, Helvetica, Arial, sans-serif;
+  font-size: 16px;
 }
 
 .icon-post {
@@ -240,12 +306,17 @@ export default {
 }
 
 .post-container {
-  border: 1px solid #ccc;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-  margin: 10px 0;
-  padding: 10px;
+  position: relative;
   display: flex;
-  flex-direction: column;
+  flex-direction: column; 
+  justify-content: center; 
+  padding: 20px 30px;
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  max-width: 50%; 
+  margin: 30px auto; 
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
 .user-section {
@@ -272,29 +343,56 @@ export default {
 
 .post-date {
   color: #777;
+  margin-top: 5px;
+}
+
+.post-options {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  top: 30px;
+  right: 35px;
+}
+
+.edit-post-icon {
+  font-size: 17px;
+  cursor: pointer;
+  margin-bottom: 15px;
+  color: blue;
+}
+
+.delete-post-icon {
+  font-size: 17px;
+  cursor: pointer;
+  color: red;
+}
+
+.update-post-input {
+  max-width: 100%;
+  margin: 20px 0;
+  height: 50px;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.save-post-icon {
+  font-size: 24px; 
+  color: rgb(5, 160, 5);
+  cursor: pointer; 
+  padding: 10px;
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
 .post-text {
-  margin: 10px 0;
+  margin: 15px 0;
+  display: flex;
 }
 
 .post-image {
   max-width: 100%;
   height: auto;
-}
-
-.post-container {
-  display: flex;
-  flex-direction: column; 
-  justify-content: center; 
-  align-items: center; 
-  padding: 20px 30px;
-  background-color: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 5px;
-  max-width: 50%; 
-  margin: 30px auto; 
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
 .success-message {
@@ -323,9 +421,26 @@ export default {
   margin-right: 10px;
 }
 
+.user-icon {
+  font-size: 25px;
+}
+
 .post-input {
   padding: 5px;
   height: 30px;
+}
+
+.post-container {
+  padding: 10px;
+  max-width: 100%;
+}
+
+.user-name {
+  font-size: 15px;
+}
+
+.post-date {
+  font-size: 13px;
 }
 }
 
