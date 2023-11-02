@@ -152,40 +152,37 @@ export default {
   },
 
 
-async created() {
-  let userId = this.$route.query.id;
+  async created() {
+    let userId = this.$route.query.id;
 
-  if (!userId) {
-    userId = this.$store.state.user?.user_id; 
-  }
+    if (!userId) {
+      userId = this.$store.state.user?.user_id; 
+    }
 
-  if (!userId) {
-    console.error("User ID is not defined.");
-    return;
-  }
+    if (!userId) {
+      console.error("User ID is not defined.");
+      return;
+    }
 
-  const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token');
 
-  if (!token) {
-    console.error("Token is not defined in local storage.");
-    return;
-  }
+    if (!token) {
+      console.error("Token is not defined in local storage.");
+      return;
+    }
 
-  try {
-    const response = await axios.get(`/api/user/${userId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    try {
+      const response = await axios.get(`/api/user/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
     this.user = response.data.user;
-    console.log('User Data:', this.user);
-  } catch (error) {
-    console.error("Error fetching user data:", error);
-
-  }
-},
-
-
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  },
 };
 </script>
 
