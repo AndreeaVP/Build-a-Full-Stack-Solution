@@ -24,7 +24,13 @@ exports.createPost = (req, res) => {
 };
 
 exports.getAllPosts = (req, res) => {
-  db.query('SELECT * FROM posts', (err, results) => {
+  const query = `
+    SELECT p.*, u.firstname, u.lastname
+    FROM posts p
+    JOIN users u ON p.user_id = u.user_id
+  `;
+
+  db.query(query, (err, results) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
