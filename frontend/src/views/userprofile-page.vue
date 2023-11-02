@@ -2,14 +2,17 @@
   <div>
     <app-header></app-header>
 
+    <div v-if="successMessage" class="success-message">{{ successMessage }}</div>
+    <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
+
     <div class="user-profile">
       <div class="account-image">
         <img :src="user.image_url" alt="Profile Image">
       </div>
 
       <div class="profile-info">
-        <p>Name: {{ user.firstname }} {{ user.lastname }}</p>
-        <p class="email">Email: {{ user.email }}</p>
+        <p>{{ user.firstname }} {{ user.lastname }}</p>
+        <p class="email">{{ user.email }}</p>
       </div>
 
       <font-awesome-icon @click="toggleSettings" :icon="['fas', 'sliders']" class="icon-settings" v-if="!showSettings" />
@@ -21,12 +24,13 @@
         </div>
 
         <div class="profile-image-section">
-          <h3>Image Update</h3>
-          <img src="your-profile-image-url.jpg" alt="Profile Image">
+          <h3>{{ user.image_url ? 'Update Image' : 'Upload an Image' }}</h3>
+          <img :src="user.image_url" alt="Profile Image">
           <div class="change-image-button">
-            <button>Change Your Image</button>
+            <button>{{ user.image_url ? 'Change Your Image' : 'Upload an Image' }}</button>
           </div>
         </div>
+
 
         <hr class="separator">
         
@@ -56,6 +60,7 @@
 
 <script>
 import AppHeader from "@/components/app-header.vue";
+import axios from "axios";
 
 export default {
   components: {
@@ -63,38 +68,104 @@ export default {
   },
   data() {
     return {
-      user: {},
+      user: {
+        image_url: null,
+      },
       oldPassword: "",
       newPassword: "",
       showSettings: false,
+      successMessage: '',
+      errorMessage: '',
     };
   },
+  computed: {
+
+  },
   methods: {
-
-
     toggleSettings() {
-      this.showSettings = !this.showSettings; 
+      this.showSettings = !this.showSettings;
     },
 
     closeSettings() {
-    this.showSettings = false;
+      this.showSettings = false;
     },
 
     changeProfileImage() {
-
+      // change the profile image
     },
 
-    changePassword() {
+    async changePassword() {
+      try {
+        const userId = this.$store.state.user.user_id;
+        const newPassword = this.newPassword;
 
+        const response = await axios.put(`/api/user/${userId}`, { password: newPassword }, {
+          headers: {
+            Authorization: `Bearer ${this.$store.state.token}`,
+          },
+        });
+
+      if (response.status === 200) {
+        this.successMessage = 'Password changed successfully.';
+        this.errorMessage = '';
+        this.newPassword = '';
+        setTimeout(() => {
+          this.successMessage = '';
+        }, 1500);
+      }
+      } catch (error) {
+        console.error('Error changing password:', error);
+        this.errorMessage = 'Failed to change password. Please try again.';
+      }
     },
 
-    deleteAccount() {
+    async deleteAccount() {
+      try {
+        const userId = this.$store.state.user.user_id;
 
+        const response = await axios.delete(`/api/user/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${this.$store.state.token}`,
+          },
+        });
+
+      if (response.status === 200) {
+        this.successMessage = response.data.message;
+        this.errorMessage = '';
+        setTimeout(() => {
+        this.successMessage = '';
+        this.$router.push({ name: 'login' });
+      }, 1500);
+      } else {
+        this.errorMessage = 'Error deleting user account. Please try again later.';
+      }
+      } catch (error) {
+        console.error('Error deleting user account:', error);
+      }
     },
   },
-  created() {
 
-  },
+  async created() {
+  let userId = this.$route.query.id;
+
+  if (!userId) {
+    userId = this.$store.state.user.user_id;
+  }
+
+  const token = this.$store.state.token;
+
+  try {
+    const response = await axios.get(`/api/user/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    this.user = response.data.user;
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+  }
+},
+
 };
 </script>
 
@@ -111,7 +182,7 @@ export default {
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
   max-width: 50%;
   margin: 30px auto;
-  background: linear-gradient(45deg,  #fb7a94,#FFEDBC);
+  background: linear-gradient(45deg,  #ff9baf,#fbedc6);
   color: #000;
 }
 
@@ -198,6 +269,20 @@ export default {
 .separator {
   margin: 20px 0;
   border: 1px solid #eb0db3;
+}
+
+.success-message {
+  color: white;
+  background-color: #55eb5a;
+  padding: 8px;
+  border-radius: 5px; 
+}
+
+.error-message {
+  color: white;
+  background-color: red;
+  padding: 8px;
+  border-radius: 5px; 
 }
 
 </style>
