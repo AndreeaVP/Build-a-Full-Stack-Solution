@@ -83,6 +83,7 @@ export default {
     async createPost() {
 
         const user_id = this.$store.state.user.user_id;
+        const token = localStorage.getItem('token');
         const formData = new FormData();
         formData.append("user_id", user_id);
         formData.append('textual_post', this.postContent);
@@ -91,9 +92,7 @@ export default {
         const config = {
           headers: {
             "Content-Type": "multipart/form-data",
-
-          // retrieve from local storage
-            "Authorization": `Bearer ${this.$store.state.token}`,
+            "Authorization": `Bearer ${token}`,
           },
         };
 
@@ -123,7 +122,7 @@ export default {
 
     async fetchPosts() {
       try {
-        const token = this.$store.getters.getToken;
+        const token = localStorage.getItem('token');
 
         const headers = {
           Authorization: `Bearer ${token}`,
