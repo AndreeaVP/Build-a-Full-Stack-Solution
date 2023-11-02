@@ -95,13 +95,16 @@ export default {
     },
 
     async changePassword() {
+
+      const token = localStorage.getItem('token');
+
       try {
         const userId = this.$store.state.user.user_id;
         const newPassword = this.newPassword;
 
         const response = await axios.put(`/api/user/${userId}`, { password: newPassword }, {
           headers: {
-            Authorization: `Bearer ${this.$store.state.token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
 
@@ -120,12 +123,15 @@ export default {
     },
 
     async deleteAccount() {
+
+      const token = localStorage.getItem('token');
+
       try {
         const userId = this.$store.state.user.user_id;
 
         const response = await axios.delete(`/api/user/${userId}`, {
           headers: {
-            Authorization: `Bearer ${this.$store.state.token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
 
@@ -152,7 +158,7 @@ export default {
     userId = this.$store.state.user.user_id;
   }
 
-  const token = this.$store.state.token;
+  const token = localStorage.getItem('token');
 
   try {
     const response = await axios.get(`/api/user/${userId}`, {
