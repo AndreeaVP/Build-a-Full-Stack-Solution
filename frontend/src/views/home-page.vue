@@ -330,7 +330,7 @@ export default {
   border: 1px solid #e0e0e0;
   border-radius: 5px;
   max-width: 50%; 
-  margin: 110px auto 30px; 
+  margin: 110px auto 30px auto; 
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
