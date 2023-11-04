@@ -86,6 +86,11 @@ export default {
   padding: 10px 20px;
   height: 10vh;
   background-color: #222;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
 }
 
 .logo {
