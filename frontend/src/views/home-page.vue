@@ -72,18 +72,20 @@
         </div>
       </div>   
 
-        <div class="comments" v-if="post.showCommentInput">
-          <input type="text" v-model="post.newComment" @keyup.enter="addComment(post)" placeholder="Add a comment" />
+        <div class="comment-input" v-if="post.showCommentInput">
+          <input type="text" class="comment-input-text" v-model="post.newComment" @keyup.enter="addComment(post)" placeholder="  Add a comment" />
           <font-awesome-icon @click="addComment(post)" :icon="['fas', 'paper-plane']" class="icon" />
         </div>
 
-        <div class="comments">
+        <div class="post-comments-section">
           <div class="comment" v-for="comment in post.comments" :key="comment.comment_id">
-            {{ comment.comment }}
+            <div class="comment-details">
+              <font-awesome-icon :icon="['fas', 'user']" class="comment-user-icon" />
+              <span class="user-name">{{ comment.firstname }} {{ comment.lastname }}</span>
+            </div>
+            <div class="comment-text">{{ comment.comment }}</div>
           </div>
         </div>
-
-
     </div>
 
   </div>
@@ -227,8 +229,27 @@ export default {
     async addComment(post) {
       try {
         const postId = post.post_id;
-        const commentText = post.newComment;
+        console.log('User ID:', this.$store.state.user.user_id);
 
+        if (!post.newComment) {
+          this.errorMessage = 'Please enter a comment.';
+          setTimeout(() => {
+            this.errorMessage = '';
+          }, 1500);
+        return;
+        }
+
+        const commentText = post.newComment.trim();
+
+        if (commentText === '') {
+          this.errorMessage = 'Please enter a comment.';
+          setTimeout(() => {
+            this.errorMessage = '';
+          }, 1500);
+        return; 
+        }
+
+        const userId = post.user_id;
         const token = localStorage.getItem('token');
 
         const headers = {
@@ -237,7 +258,7 @@ export default {
 
         const response = await axios.post(`/api/comments/${postId}`, {
           postId: postId,
-          userId: this.user.user_id,
+          userId: userId,
           comment: commentText,
         }, { headers });
 
@@ -309,7 +330,7 @@ export default {
   border: 1px solid #e0e0e0;
   border-radius: 5px;
   max-width: 50%; 
-  margin: 30px auto; 
+  margin: 110px auto 30px; 
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
@@ -500,6 +521,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin: 10px 0;
 }
 
 .like-dislike-section {
@@ -523,6 +545,15 @@ export default {
   cursor: pointer;
   color: #333;
 }
+
+.comment-user-icon {
+  color: #333;  
+  font-size: 22px;
+  padding: 10px;
+  border-radius: 50%;
+  margin-right: 30px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3); 
+}
   
 .comment-section {
   display: flex;
@@ -530,11 +561,38 @@ export default {
   padding: 10px;
 }
 
-.comments {
+.comment-input {
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.comment-input-text {
+  height: 30px;
+  width: 50%;
+  margin-right: 10px;
+  border-radius: 10px;
+  border: 1px solid rgb(217, 216, 216);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.comment-details {
+  display: flex;
+  margin: 10px 0;
+  align-items: center;
+}
+
+.comment {
+  display: flex;
   flex-direction: column;
   padding: 10px;
   background-color: #f5f5f5;
   border-radius: 5px;
+  margin-bottom: 5px;
+}
+
+.comment-text {
+  display: flex;
+  align-items: flex-start;
 }
 
 .success-message {
@@ -542,6 +600,11 @@ export default {
   background-color: #55eb5a;
   padding: 8px;
   border-radius: 5px; 
+  position: fixed;
+  top: 60px;
+  left: 0;
+  right: 0;
+  z-index: 1;
 }
 
 .error-message {
@@ -549,10 +612,16 @@ export default {
   background-color: red;
   padding: 8px;
   border-radius: 5px; 
+  position: fixed;
+  top: 60px;
+  left: 0;
+  right: 0;
+  z-index: 1;
 }
 
 @media (max-width: 768px) {
 .create-post {
+  margin: 80px 0 15px 0;
   padding: 10px;
   max-width: 100%;
 }
@@ -574,6 +643,7 @@ export default {
 
 .post-container {
   padding: 10px;
+  margin-top: 10px;
   max-width: 100%;
 }
 
