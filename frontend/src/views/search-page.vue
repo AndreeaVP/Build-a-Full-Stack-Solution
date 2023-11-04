@@ -15,7 +15,7 @@
     <section id="search-results">
       <div class="user-container">
         <div v-for="user in filteredSearchResults" :key="user.user_id" class="user-card" @click="navigateToUserProfile(user.user_id)">
-          <img :src="user.image_url" alt="User Image" class="user-image">
+          <font-awesome-icon :icon="['fas', 'user']" class="user-icon" />
           <span class="user-name">{{ user.firstname }} {{ user.lastname }}</span>
         </div>
       </div>
@@ -111,6 +111,10 @@ export default {
 </script>
 
 <style scoped>
+
+#search {
+  margin-top: 110px;
+}
 .search-form {
   display: flex;
   justify-content: center;
@@ -162,6 +166,15 @@ export default {
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
+.user-icon {
+  color: #333;  
+  font-size: 30px;
+  padding: 10px;
+  border-radius: 50%;
+  margin-right: 30px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3); 
+}
+
 .user-image {
   width: 50px;
   margin-left: 20px;
@@ -194,6 +207,10 @@ export default {
 }
 
 @media (max-width: 768px) {
+#search {
+  margin-top: 80px;
+}
+
 .page-title {
   font-size: 20px;
 }
@@ -210,6 +227,10 @@ export default {
   width: 100%;
   margin-left: 5px;
   margin-right: 5px;
+}
+
+.user-icon {
+  font-size: 25px;
 }
 }
 
