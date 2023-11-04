@@ -577,7 +577,7 @@ export default {
 
 .comment-details {
   display: flex;
-  margin: 10px 0;
+  margin: 0 0 10px 0;
   align-items: center;
 }
 
