@@ -7,7 +7,7 @@
 
     <div class="user-profile">
       <div class="account-image">
-        <img :src="user.image_url" alt="Profile Image">
+        <font-awesome-icon :icon="['fas', 'user']" class="user-icon" />
       </div>
 
       <div class="profile-info">
@@ -198,17 +198,22 @@ export default {
   border-radius: 5px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
   max-width: 50%;
-  margin: 30px auto;
+  margin: 110px auto 30px auto;
   background: linear-gradient(45deg,  #ff9baf,#fbedc6);
   color: #000;
 }
 
 .account-image {
-  width: 60px;
-  height: 60px;
+
+}
+  
+.user-icon {
+  color: #333;  
+  font-size: 40px;
+  padding: 10px;
   border-radius: 50%;
   margin-right: 30px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3); 
 }
 
 .profile-info {
@@ -239,7 +244,6 @@ export default {
 .close-button-container {
   color: black;
 }
-
 
 .profile-image-section {
   text-align: center;
@@ -310,6 +314,16 @@ export default {
   left: 0;
   right: 0;
   z-index: 1;
+}
+
+@media (max-width: 768px) {
+  .user-profile {
+    margin-top: 80px;
+  }
+
+  .user-icon {
+  font-size: 25px;
+}
 }
 
 </style>
