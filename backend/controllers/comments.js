@@ -74,7 +74,7 @@ exports.getCommentsByPostId = (req, res) => {
   const postId = req.params.postId;
 
   db.query(
-    'SELECT * FROM comments WHERE post_id = ?',
+    'SELECT c.*, u.firstname, u.lastname FROM comments c JOIN users u ON c.user_id = u.user_id WHERE c.post_id = ?',
     [postId],
     (err, results) => {
       if (err) {
@@ -84,3 +84,4 @@ exports.getCommentsByPostId = (req, res) => {
     }
   );
 };
+
