@@ -25,7 +25,7 @@
           </router-link>
         </li>
         <li>
-          <router-link to="/userprofile">
+          <router-link to="/myprofile">
             <span v-if="isLargeScreen" class="nav-item-text">User Profile</span>
             <font-awesome-icon v-if="isSmallScreen" class="icon" :icon="['fas', 'user']" />
           </router-link>
