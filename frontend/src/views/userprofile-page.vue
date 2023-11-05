@@ -151,23 +151,15 @@ export default {
     },
   },
 
-
   async created() {
-    let userId = this.$route.query.id;
-
+    let userId = this.$route.query.user_id || this.$store.state.user.userId;
     if (!userId) {
-      userId = this.$store.state.user?.user_id; 
-    }
-
-    if (!userId) {
-      console.error("User ID is not defined.");
-      return;
+      userId = this.$store.state.user.user_id;
     }
 
     const token = localStorage.getItem('token');
-
-    if (!token) {
-      console.error("Token is not defined in local storage.");
+      if (!token) {
+        console.error("Token is not defined in local storage.");
       return;
     }
 
@@ -177,12 +169,11 @@ export default {
           Authorization: `Bearer ${token}`,
         },
       });
-
-    this.user = response.data.user;
+      this.user = response.data.user;
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
-  },
+  }
 };
 </script>
 
