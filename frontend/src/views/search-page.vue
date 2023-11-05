@@ -68,7 +68,11 @@ export default {
     },
 
     navigateToUserProfile(user_id) {
-      this.$router.push({ name: 'userprofile', query: { user_id } });
+      if (user_id === this.$store.state.user.user_id) {
+        this.$router.push({ name: 'myprofile' }); // Owner's account details
+      } else {
+        this.$router.push({ name: 'userprofile', query: { user_id } }); // Other users' details
+      }
     },
 
     search: debounce(function() {
