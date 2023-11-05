@@ -147,8 +147,6 @@ export default {
     try {
     const response = await axios.post('/api/auth/signup', this.signupData);
 
-    console.log('Response:', response);
-
     if (response.status === 201) {
         this.successMessage = response.data.message;
         this.errorMessage = '';  
