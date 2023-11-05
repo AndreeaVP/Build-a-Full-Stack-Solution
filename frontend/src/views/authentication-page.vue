@@ -333,11 +333,6 @@ font-size: 23px;
   background-color: #55eb5a;
   padding: 8px;
   border-radius: 5px; 
-  position: fixed;
-  top: 60px;
-  left: 0;
-  right: 0;
-  z-index: 1;
 }
 
 .error-message {
@@ -345,11 +340,6 @@ font-size: 23px;
   background-color: red;
   padding: 8px;
   border-radius: 5px; 
-  position: fixed;
-  top: 60px;
-  left: 0;
-  right: 0;
-  z-index: 1;
 }
 
 </style>
