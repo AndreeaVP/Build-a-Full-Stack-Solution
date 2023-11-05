@@ -31,6 +31,11 @@ const routes = [
     name: 'userprofile',
     component: UserProfilePage, 
   },
+  {
+    path: '/myprofile',
+    name: 'myprofile',
+    component: UserProfilePage,
+  },
 ];
 
 const router = createRouter({
