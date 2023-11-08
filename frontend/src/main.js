@@ -11,8 +11,21 @@ axios.defaults.baseURL = 'http://localhost:3000';
 
 library.add(fas);
 
-createApp(App)
+const app = createApp(App);
+
+app
   .use(store)
   .use(router)
-  .component('font-awesome-icon', FontAwesomeIcon)
-  .mount('#app');
+  .component('font-awesome-icon', FontAwesomeIcon);
+
+const token = localStorage.getItem('token');
+const userData = localStorage.getItem('user');
+
+if (token) {
+  store.commit('setToken', token);
+}
+if (userData) {
+  store.commit('setUser', JSON.parse(userData));
+}
+
+app.mount('#app');
