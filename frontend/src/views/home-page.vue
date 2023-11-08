@@ -37,8 +37,8 @@
       </div>
 
       <div class="post-options">
-        <font-awesome-icon :icon="['fas', 'edit']" class="edit-post-icon" @click="toggleEditMode(post)" />
-        <font-awesome-icon :icon="['fas', 'trash']" class="delete-post-icon" @click="deletePost(post)" />
+        <font-awesome-icon v-if="userData && userData.user_id === post.user_id" :icon="['fas', 'edit']" class="edit-post-icon" @click="toggleEditMode(post)" />
+        <font-awesome-icon v-if="userData && userData.user_id === post.user_id" :icon="['fas', 'trash']" class="delete-post-icon" @click="deletePost(post)" />
       </div>
 
       <div>
@@ -56,18 +56,21 @@
       <!-- Like and Dislike Section -->
       <div class="like-comment-section">
         <div class="like-dislike-section">
-          <div @click="likePost(post)" class="like-icon">
+          <div @click="likePost(post)" class="like-icon" :class="{ active: post.userLiked === 1 }">
             <font-awesome-icon :icon="['fas', 'thumbs-up']" class="icon" />
-          </div>
-          <div @click="dislikePost(post)" class="dislike-icon">
-            <font-awesome-icon :icon="['fas', 'thumbs-down']" class="icon" />
-          </div>
+            {{ post.likes }}
+        </div>
+        <div @click="dislikePost(post)" class="dislike-icon" :class="{ active: post.userLiked === -1 }">
+          <font-awesome-icon :icon="['fas', 'thumbs-down']" class="icon" />
+          {{ post.dislikes }}
+        </div>
         </div>
 
       <!-- Comment Section -->
         <div class="comment-section">
           <div @click="toggleCommentInput(post)" class="comment-icon">
             <font-awesome-icon :icon="['fas', 'comment']" class="icon" />
+            <span class="comment-count">{{ totalCommentsPerPost[post.post_id] }}</span>
           </div>
         </div>
       </div>   
@@ -79,9 +82,12 @@
 
         <div class="post-comments-section">
           <div class="comment" v-for="comment in post.comments" :key="comment.comment_id">
-            <div class="comment-details">
+            <div class="comment-details-container">
               <font-awesome-icon :icon="['fas', 'user']" class="comment-user-icon" />
-              <span class="user-name">{{ comment.firstname }} {{ comment.lastname }}</span>
+              <div class="comment-details">
+                <span class="comment-user-name">{{ comment.firstname }} {{ comment.lastname }}</span>
+                <p class="comment-posted-container">Posted on {{ formatDate(comment.created_at) }}</p>
+            </div>
             </div>
             <div class="comment-text">{{ comment.comment }}</div>
           </div>
@@ -99,7 +105,25 @@ import axios from "axios";
 export default {
   components: {
   AppHeader,
-},
+  },
+  computed: {
+    userData() {
+    const userDataFromVuex = this.$store.state.user;   
+    if (userDataFromVuex) {
+      return userDataFromVuex;
+    }
+    
+    const userDataFromLocalStorage = JSON.parse(localStorage.getItem('user'));  
+    return userDataFromLocalStorage || null;
+  },
+    totalCommentsPerPost() {
+      const totalCommentsMap = {};
+      for (const post of this.posts) {
+        totalCommentsMap[post.post_id] = post.comments.length;
+      }
+      return totalCommentsMap;
+    },
+  },
   data() {
     return {
       postContent: '',
@@ -109,6 +133,9 @@ export default {
       errorMessage: '',
       posts: [],
       editingPostId: null,
+      userLiked: 0,
+      likesCount: 0,
+      dislikesCount: 0,
     };
   },
   methods: {
@@ -140,8 +167,14 @@ export default {
     },
 
     async createPost() {
-        const user_id = this.$store.state.user.user_id;
-        const token = localStorage.getItem('token');
+      const user = this.$store.state.user; 
+        if (!user || !user.user_id) {
+          this.errorMessage = "User information not available.";
+        return;
+        }
+
+        const user_id = user.user_id;     
+        const token = this.$store.state.token;
         const formData = new FormData();
         formData.append("user_id", user_id);
         formData.append('textual_post', this.postContent);
@@ -154,25 +187,23 @@ export default {
           },
         };
 
-    try {
+      try {
+        const response = await axios.post("/api/posts", formData, config);
 
-      const response = await axios.post("/api/posts", formData, config);
+          if (response.status === 201) {
+            this.successMessage = response.data.message;
+            this.postContent = '';
+            this.errorMessage = "";
+            this.selectedFile = null;
+            this.previewUrl = null;
 
-      if (response.status === 201) {
-        this.successMessage = response.data.message;
-        this.postContent = '';
-        this.errorMessage = "";
-        this.selectedFile = null;
-        this.previewUrl = null;
-
-        await this.fetchPosts();
-        setTimeout(() => {
-        this.successMessage = '';
-      }, 1500);
-      } else {
-      this.errorMessage = "Failed to create the post";
-    }
-
+            await this.fetchPosts();
+            setTimeout(() => {
+            this.successMessage = '';
+            }, 1500);
+          } else {
+          this.errorMessage = "Failed to create the post";
+        }
       } catch (error) {
         this.errorMessage = 'Error creating the post.';
       }
@@ -183,12 +214,20 @@ export default {
         const token = localStorage.getItem('token');
         const headers = {
           Authorization: `Bearer ${token}`,
-      };
+        };
 
-      const response = await axios.get('/api/posts', { headers });
-      this.posts = response.data.posts; 
+        const response = await axios.get('/api/posts', { headers });
+          if (response.status === 200) {
+            this.posts = response.data.posts.map(post => ({
+            ...post,
+            comments: [],
+          }));
+          } else {
+            this.errorMessage = 'Failed to fetch posts. Please try again.';
+          }
+
       } catch (error) {
-      console.error('Error fetching posts:', error);
+        console.error('Error fetching posts:', error);
       }
     },
 
@@ -213,7 +252,7 @@ export default {
 
           await this.fetchPosts();
           setTimeout(() => {
-          this.successMessage = '';
+            this.successMessage = '';
           }, 1500);
         } else {
           this.successMessage = '';
@@ -229,8 +268,6 @@ export default {
     async addComment(post) {
       try {
         const postId = post.post_id;
-        console.log('User ID:', this.$store.state.user.user_id);
-
         if (!post.newComment) {
           this.errorMessage = 'Please enter a comment.';
           setTimeout(() => {
@@ -240,7 +277,6 @@ export default {
         }
 
         const commentText = post.newComment.trim();
-
         if (commentText === '') {
           this.errorMessage = 'Please enter a comment.';
           setTimeout(() => {
@@ -249,8 +285,9 @@ export default {
         return; 
         }
 
-        const userId = post.user_id;
-        const token = localStorage.getItem('token');
+        const token = this.$store.state.token || localStorage.getItem('token');
+        const userData = this.$store.state.user || JSON.parse(localStorage.getItem('user'));
+        const userId = userData.user_id;
 
         const headers = {
           Authorization: `Bearer ${token}`,
@@ -260,11 +297,13 @@ export default {
           postId: postId,
           userId: userId,
           comment: commentText,
+          firstname: userData.firstname,
+          lastname: userData.lastname,
         }, { headers });
 
         if (response.status === 201) {
-          post.comments.push(response.data);
-          post.newComment = '';
+          const newComment = { ...response.data, firstname: userData.firstname, lastname: userData.lastname };
+          post.comments.push(newComment);
           this.toggleCommentInput(post);
           this.successMessage = 'Comment added successfully';
           this.errorMessage = '';
@@ -278,13 +317,6 @@ export default {
       } catch (error) {
         console.error('Error adding comment:', error);
         this.errorMessage = 'An error occurred while adding the comment. Please try again later.';
-      }
-    },
-
-    async loadPostsAndComments() {
-      await this.fetchPosts();
-      for (const post of this.posts) {
-      await this.fetchComments(post);
       }
     },
 
@@ -310,6 +342,17 @@ export default {
         this.errorMessage = 'An error occurred while fetching comments. Please try again.';
       }
     },
+
+    async loadPostsAndComments() {
+      await this.fetchPosts();
+      for (const post of this.posts) {
+      await this.fetchComments(post);
+      }
+    },   
+  },
+
+  beforeCreate() {
+    this.userData = this.$store.state.user || JSON.parse(localStorage.getItem('user'));
   },
 
   created() {
@@ -514,7 +557,8 @@ export default {
 
 .post-image {
   max-width: 100%;
-  height: auto;
+  height: 500px;
+  object-fit: cover;
 }
 
 .like-comment-section {
@@ -554,6 +598,10 @@ export default {
   margin-right: 30px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3); 
 }
+
+.comment-user-name {
+  font-weight: bold;
+}
   
 .comment-section {
   display: flex;
@@ -575,10 +623,15 @@ export default {
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
-.comment-details {
+.comment-details-container {
   display: flex;
   margin: 0 0 10px 0;
-  align-items: center;
+}
+
+.comment-details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .comment {
@@ -593,6 +646,10 @@ export default {
 .comment-text {
   display: flex;
   align-items: flex-start;
+}
+
+.comment-posted-container {
+  margin-top: 7px;
 }
 
 .success-message {
@@ -626,6 +683,14 @@ export default {
   max-width: 100%;
 }
 
+.file-label {
+  font-size: 15px;
+}
+
+.post-button {
+  font-size: 15px;
+}
+
 .profile-image {
   width: 30px;
   height: 30px;
@@ -652,6 +717,28 @@ export default {
 }
 
 .post-date {
+  font-size: 13px;
+}
+
+.post-image {
+  height: 350px;
+}
+
+.comment {
+  padding-top: 5px;
+  padding-bottom: 3px;
+}
+
+.comment-user-icon {
+  padding: 7px;
+  font-size: 16px;
+}
+
+.comment-user-name {
+  font-size: 14px;
+}
+
+.comment-text {
   font-size: 13px;
 }
 }
