@@ -70,7 +70,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 
 export default {
   components: {
@@ -145,9 +144,8 @@ export default {
     }
 
     try {
-    const response = await axios.post('/api/auth/signup', this.signupData);
-
-    if (response.status === 201) {
+      const response = await this.$store.dispatch('signup', this.signupData);
+      if (response.status === 201) {
         this.successMessage = response.data.message;
         this.errorMessage = '';  
 
@@ -164,7 +162,7 @@ export default {
         setTimeout(() => {
             this.successMessage = '';
         }, 1500);
-    } else {
+      } else {
         if (response.status === 400) {
             this.errorMessage = response.data.error;
         } else {
@@ -172,17 +170,17 @@ export default {
         }
     }
     } catch (error) {
-    if (error.response) {
+      if (error.response) {
         if (error.response.status === 500) {
             this.errorMessage = 'Server error: Unable to complete the registration process.';
         } else {
             this.errorMessage = 'Error: ' + error.response.statusText;
         }
-    } else {
+      } else {
         this.errorMessage = 'Network Error: Unable to connect to the server';
-    }
-    }
-  },
+      }
+      }
+    },
 
     async login() {
       if (!this.loginData.email || !this.loginData.password) {
@@ -190,31 +188,28 @@ export default {
         return;
       }
       try {
-        const response = await axios.post('/api/auth/login', this.loginData);
+        const response = await this.$store.dispatch('login', this.loginData);
 
-      if (response.status === 200) {
-        this.$store.commit('setToken', response.data.token);
-        this.$store.commit('setUser', response.data.user);
-        localStorage.setItem('token', response.data.token);
-        
+      if (response.status === 200) {       
         this.successMessage = response.data.message;
         this.errorMessage = '';
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
         setTimeout(() => {
         this.successMessage = '';
         this.navigateToHomePage();
       }, 1200);
       } else {
-      this.errorMessage = 'Invalid email or password. Please try again.';
-      }
-    } catch (error) {
-      if (error.response.status === 401) {
         this.errorMessage = 'Invalid email or password. Please try again.';
-      } else {
-        this.errorMessage = 'Error: ' + error.message;
       }
-    }
-  },
-
+      } catch (error) {
+        if (error.response.status === 401) {
+          this.errorMessage = 'Invalid email or password. Please try again.';
+        } else {
+          this.errorMessage = 'Error: ' + error.message;
+        }
+      }
+    },
     navigateToHomePage() {
       this.$router.push({ name: 'home' });
     },
