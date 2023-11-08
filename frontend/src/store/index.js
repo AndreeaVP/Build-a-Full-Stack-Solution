@@ -4,9 +4,7 @@ import axios from 'axios';
 export default createStore({
   state: {
     token: null, 
-    user: {
-      userId: null,
-    },
+    user: null,
   },
 
   mutations: {
@@ -25,11 +23,11 @@ export default createStore({
   },
 
   actions: {
-    async signup({ commit }, userData) {
+    async signup({ commit }, signupData) {
       try {
-        const response = await axios.post('/api/auth/signup', userData);
+        const response = await axios.post('/api/auth/signup', signupData);
   
-        if (response.data.token) {
+        if (response.status === 201) {
           commit('setToken', response.data.token);
           commit('setUser', response.data.user);
           return response;
@@ -41,24 +39,22 @@ export default createStore({
       }
     },
 
-    async login({ commit }, credentials) {
-  try {
-    const response = await axios.post('/api/auth/login', credentials);
+    async login({ commit }, loginData) {
+      try {
+        const response = await axios.post('/api/auth/login', loginData);
 
-    if (response.data.token) {
-      const token = response.data.token;
-      const user = response.data.user;
-      user.userId = user.id;
-      commit('setToken', token);
-      commit('setUser', response.data.user);
-      return response;
-    } else {
-      return Promise.reject('Invalid response');
-    }
-  } catch (error) {
-    return Promise.reject(error);
-  }
-},
+        if (response.status === 200) {
+          commit('setToken', response.data.token);
+          commit('setUser', response.data.user);
+          console.log('User data in login action:', response.data.user);
+          return response;
+        } else {
+          return Promise.reject(response);
+        }
+      } catch (error) {
+        return Promise.reject(error);
+      }
+    },
 
     async logout({ commit }) {
       commit('clearToken');
