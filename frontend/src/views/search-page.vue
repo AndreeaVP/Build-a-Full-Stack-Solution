@@ -2,10 +2,14 @@
   <div>
     <app-header></app-header>
 
+    <div v-if="successMessage" class="success-message">{{ successMessage }}</div>
+    <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
+
     <section id="search">
       <h1 class="page-title">Search</h1>
       <form @submit.prevent="search" class="search-form">
         <div class="input-container">
+          <font-awesome-icon :icon="['fas', 'circle-info']" class="info-icon" title="Enter at least 3 characters to start the search" />
           <input v-model="query" @input="search" type="text" placeholder="Search..." class="search-input">
           <font-awesome-icon :icon="['fas', 'search']" class="icon-search" @click="search" />
         </div>
@@ -14,7 +18,7 @@
 
     <section id="search-results">
       <div class="user-container">
-        <div v-for="user in filteredSearchResults" :key="user.user_id" class="user-card" @click="navigateToUserProfile(user.user_id)">
+        <div v-for="user in filteredSearchResults" :key="user.user_id" class="user-card" @click="navigateToUsersPage(user.user_id)">
           <font-awesome-icon :icon="['fas', 'user']" class="user-icon" />
           <span class="user-name">{{ user.firstname }} {{ user.lastname }}</span>
         </div>
@@ -36,6 +40,8 @@ export default {
     return {
       query: "",
       searchResults: [],
+      successMessage: '',
+      errorMessage: '',
     };
   },
   computed: {
@@ -48,7 +54,6 @@ export default {
   },
   methods: {
     async performSearch() {
-
       const token = localStorage.getItem('token');
 
       try {
@@ -61,18 +66,43 @@ export default {
           params: { query: this.query },
           ...config,
         });
-        this.searchResults = response.data;
+
+        const loggedInUser = JSON.parse(localStorage.getItem('user'));
+        const loggedInUserId = loggedInUser ? loggedInUser.user_id : null;
+        this.searchResults = response.data.filter(user => user.user_id !== loggedInUserId);
+
       } catch (error) {
         console.error('Error searching users:', error);
       }
     },
 
-    navigateToUserProfile(user_id) {
-      if (user_id === this.$store.state.user.user_id) {
-        this.$router.push({ name: 'myprofile' }); // Owner's account details
-      } else {
-        this.$router.push({ name: 'userprofile', query: { user_id } }); // Other users' details
+    navigateToUsersPage(user_id) {
+      try {
+        this.showSuccessMessage('Redirecting to user page...');
+        setTimeout(() => {
+          if (Math.random() > 1.5) {
+            throw new Error('An error occurred during redirection.');
+          }
+          this.$router.push({ name: 'userspage', params: { user_id } });
+          this.clearMessages();
+        }, 1200);
+      } catch (error) {
+        this.showErrorMessage('Error during redirection: ' + error.message);
+        this.clearMessages();
       }
+    },
+
+    showSuccessMessage(message) {
+      this.successMessage = message;
+    },
+
+    showErrorMessage(message) {
+      this.errorMessage = message;
+    },
+
+    clearMessages() {
+      this.successMessage = '';
+      this.errorMessage = '';
     },
 
     search: debounce(function() {
@@ -83,12 +113,10 @@ export default {
         if (this.query === "") {
           this.loadInitialData();
         }
-      }
-      
+      }     
     }, 300),
 
     async loadInitialData() {
-
       const token = localStorage.getItem('token');
 
       try {
@@ -98,7 +126,9 @@ export default {
           },
         };
         const response = await axios.get('/api/user', config);
-        this.searchResults = response.data;
+        const loggedInUserId = JSON.parse(localStorage.getItem('user')).user_id;
+        this.searchResults = response.data.filter(user => user.user_id !== loggedInUserId);
+
       } catch (error) {
         console.error('Error loading initial data:', error);
       }
@@ -147,6 +177,10 @@ export default {
   color: blue;
 }
 
+.info-icon {
+  cursor: pointer;
+}
+
 .user-container {
   display: flex;
   flex-wrap: wrap;
@@ -158,12 +192,19 @@ export default {
   display: flex;
   width: calc(30% - 10px);
   margin: 0 5px 20px;
+  cursor: pointer;
   align-items: center;
+  border: 1px solid rgba(0, 0, 0, 0);
   justify-content: flex-start;;
-  border: 1px solid #ccc;
   padding: 15px;
   border-radius: 5px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  transition: box-shadow 0.3s ease-in-out, border 0.3s ease-in-out;
+}
+
+.user-card:hover {
+  box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
 }
 
 .user-icon {
@@ -185,6 +226,30 @@ export default {
 
 .user-name {
   margin-left: 30px;
+}
+
+.success-message {
+  color: white;
+  background-color: #55eb5a;
+  padding: 8px;
+  border-radius: 5px; 
+  position: fixed;
+  top: 70px;
+  left: 0;
+  right: 0;
+  z-index: 1;
+}
+
+.error-message {
+  color: white;
+  background-color: red;
+  padding: 8px;
+  border-radius: 5px; 
+  position: fixed;
+  top: 70px;
+  left: 0;
+  right: 0;
+  z-index: 1;
 }
 
 @media (max-width: 1100px) {
