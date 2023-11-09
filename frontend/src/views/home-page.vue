@@ -86,17 +86,27 @@
               <font-awesome-icon :icon="['fas', 'user']" class="comment-user-icon" />
               <div class="comment-details">
                 <span class="comment-user-name">{{ comment.firstname }} {{ comment.lastname }}</span>
-                <p class="comment-posted-container">Posted on {{ formatDate(comment.created_at) }}</p>
+                <p class="comment-posted-date">Posted on {{ formatDate(comment.created_at) }}</p>
+              </div>
             </div>
+
+            <div class="comment-actions">
+              <font-awesome-icon v-if="userData && userData.user_id === comment.user_id" :icon="['fas', 'square-pen']" class="comment-edit-icon" @click="editComment(comment)" />
+              <font-awesome-icon v-if="userData && userData.user_id === comment.user_id" :icon="['fas', 'trash']" class="comment-delete-icon" @click="confirmDeleteComment(comment)" />
             </div>
+
+            <div v-if="editingCommentId === comment.comment_id">
+              <input type="text" class="edit-comment-input" v-model="editedComment" />
+              <font-awesome-icon class="save-edit-comment" @click="saveEditedComment(comment)" :icon="['fas', 'check']"/>
+            </div>
+
             <div class="comment-text">{{ comment.comment }}</div>
+
           </div>
         </div>
     </div>
-
   </div>
 </template>
-
 
 <script>  
 import AppHeader from "@/components/app-header.vue";
@@ -108,13 +118,16 @@ export default {
   },
   computed: {
     userData() {
-    const userDataFromVuex = this.$store.state.user;   
+    const userDataFromVuex = this.$store.state.user;
     if (userDataFromVuex) {
       return userDataFromVuex;
     }
-    
-    const userDataFromLocalStorage = JSON.parse(localStorage.getItem('user'));  
-    return userDataFromLocalStorage || null;
+
+    const userDataFromLocalStorage = JSON.parse(localStorage.getItem('user'));
+    if (userDataFromLocalStorage !== null) {
+      return userDataFromLocalStorage;
+    }
+    return null;
   },
     totalCommentsPerPost() {
       const totalCommentsMap = {};
@@ -132,7 +145,10 @@ export default {
       successMessage: '',
       errorMessage: '',
       posts: [],
+      comments: [],
       editingPostId: null,
+      editingCommentId: null,
+      editedComment: "",
       userLiked: 0,
       likesCount: 0,
       dislikesCount: 0,
@@ -159,11 +175,16 @@ export default {
       this.newTextualPost = post.textual_post;
     },
 
-    toggleCommentInput(post) {
+    async toggleCommentInput(post) {
       post.showCommentInput = !post.showCommentInput;
       if (post.showCommentInput) {
-        this.fetchComments(post);
+        await this.fetchComments(post);
       }
+    },
+
+    editComment(comment) {
+      this.editingCommentId = comment.comment_id;
+      this.editedComment = comment.comment;     
     },
 
     async createPost() {
@@ -218,10 +239,9 @@ export default {
 
         const response = await axios.get('/api/posts', { headers });
           if (response.status === 200) {
-            this.posts = response.data.posts.map(post => ({
-            ...post,
-            comments: [],
-          }));
+            this.posts = response.data.posts
+              .map(post => ({ ...post, comments: [] }))
+              .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
           } else {
             this.errorMessage = 'Failed to fetch posts. Please try again.';
           }
@@ -244,7 +264,6 @@ export default {
             Authorization: `Bearer ${token}`,
           },
         });
-
         if (response.status === 200) {
           this.successMessage = 'Post updated successfully';
           this.errorMessage = '';
@@ -268,22 +287,22 @@ export default {
     async addComment(post) {
       try {
         const postId = post.post_id;
-        if (!post.newComment) {
-          this.errorMessage = 'Please enter a comment.';
-          setTimeout(() => {
-            this.errorMessage = '';
-          }, 1500);
-        return;
-        }
+          if (!post.newComment) {
+            this.errorMessage = 'Please enter a comment.';
+            setTimeout(() => {
+              this.errorMessage = '';
+            }, 1500);
+          return;
+          }
 
         const commentText = post.newComment.trim();
-        if (commentText === '') {
-          this.errorMessage = 'Please enter a comment.';
-          setTimeout(() => {
-            this.errorMessage = '';
-          }, 1500);
-        return; 
-        }
+          if (commentText === '') {
+            this.errorMessage = 'Please enter a comment.';
+            setTimeout(() => {
+              this.errorMessage = '';
+            }, 1500);
+          return; 
+          }
 
         const token = this.$store.state.token || localStorage.getItem('token');
         const userData = this.$store.state.user || JSON.parse(localStorage.getItem('user'));
@@ -304,19 +323,22 @@ export default {
         if (response.status === 201) {
           const newComment = { ...response.data, firstname: userData.firstname, lastname: userData.lastname };
           post.comments.push(newComment);
+          
+          await this.fetchComments(post);
+
           this.toggleCommentInput(post);
           this.successMessage = 'Comment added successfully';
           this.errorMessage = '';
+
           setTimeout(() => {
             this.successMessage = '';
           }, 1500);
-
         } else {
-          this.errorMessage = 'Failed to add the comment. Please try again.';     
+            this.errorMessage = 'Failed to add the comment. Please try again.';     
         }
       } catch (error) {
-        console.error('Error adding comment:', error);
-        this.errorMessage = 'An error occurred while adding the comment. Please try again later.';
+          console.error('Error adding comment:', error);
+          this.errorMessage = 'An error occurred while adding the comment. Please try again later.';
       }
     },
 
@@ -348,11 +370,79 @@ export default {
       for (const post of this.posts) {
       await this.fetchComments(post);
       }
-    },   
-  },
+    },  
+    
+    async saveEditedComment(comment) {
+      try {
+          const token = this.$store.state.token || localStorage.getItem('token');
+          const headers = {
+            Authorization: `Bearer ${token}`,
+          };
 
-  beforeCreate() {
-    this.userData = this.$store.state.user || JSON.parse(localStorage.getItem('user'));
+          const response = await axios.put(`/api/comments/${comment.comment_id}`, {    
+            commentId: comment.comment_id,
+            userId: comment.user_id,
+            comment: this.editedComment,
+           }, { headers });
+
+            if (response.status === 200) {
+              comment.comment = this.editedComment;
+              this.editedComment = '';
+              this.editingCommentId = null;
+              this.successMessage = 'Comment updated successfully';
+              this.errorMessage = '';
+              setTimeout(() => {
+                this.successMessage = '';
+              }, 1500);
+            } else {
+              console.error('Error editing comment:', response.status);
+              this.errorMessage = 'Failed to update the comment. Please try again.';
+            }
+      } catch (error) {
+          console.error('Error updating comment:', error);
+          this.errorMessage = 'An error occurred while updating comment. Please try again.';
+      }
+    },
+
+    confirmDeleteComment(comment) {
+      if (window.confirm('Are you sure you want to delete this comment?')) {
+        this.deleteComment(comment);
+      }
+    },
+
+    async deleteComment(comment) {
+      try {
+        const token = this.$store.state.token || localStorage.getItem('token');
+        const userId = this.userData.user_id;
+        const commentId = comment.comment_id;
+
+        const response = await axios.delete(`/api/comments/${commentId}`, {
+          data: {
+            userId,
+          },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.status === 200) {
+          const postContainingComment = this.posts.find(post => post.comments.some(c => c.comment_id === comment.comment_id));
+          postContainingComment.comments = postContainingComment.comments.filter(c => c.comment_id !== comment.comment_id);
+
+          this.successMessage = 'Comment deleted successfully';
+          this.errorMessage = '';
+          setTimeout(() => {
+            this.successMessage = '';
+          }, 1500);
+        } else {
+            console.error('Error deleting comment:', response);
+            this.errorMessage = 'Failed to delete comment. Please try again.';
+        }
+      } catch (error) {
+          console.error('Error deleting comment:', error);
+          this.errorMessage = 'An error occurred while deleting the comment. Please try again.';
+      }
+    },
   },
 
   created() {
@@ -520,14 +610,14 @@ export default {
 }
 
 .edit-post-icon {
-  font-size: 17px;
+  font-size: 15px;
   cursor: pointer;
   margin-bottom: 15px;
-  color: green;
+  color: grey;
 }
 
 .delete-post-icon {
-  font-size: 17px;
+  font-size: 15px;
   cursor: pointer;
   color: red;
 }
@@ -620,7 +710,6 @@ export default {
   margin-right: 10px;
   border-radius: 10px;
   border: 1px solid rgb(217, 216, 216);
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
 .comment-details-container {
@@ -636,6 +725,7 @@ export default {
 
 .comment {
   display: flex;
+  position: relative;
   flex-direction: column;
   padding: 10px;
   background-color: #f5f5f5;
@@ -648,8 +738,34 @@ export default {
   align-items: flex-start;
 }
 
-.comment-posted-container {
+.comment-posted-date {
   margin-top: 7px;
+  margin-bottom: 0;
+}
+
+.comment-actions {
+  position: absolute;
+  display: flex;
+  top:25px;
+  right: 15px;
+  gap: 10px;
+}
+
+.comment-edit-icon,
+.comment-delete-icon {
+  cursor: pointer;
+}
+
+.edit-comment-input {
+  height: 30px;
+  width: 50%;
+  border-radius: 10px;
+  margin-right: 10px;
+  border: 1px solid rgb(217, 216, 216);
+}
+
+.save-edit-comment {
+  color: green;
 }
 
 .success-message {
@@ -701,9 +817,17 @@ export default {
   font-size: 25px;
 }
 
+.like-comment-section {
+  margin-bottom: 0;
+}
+
 .post-input {
   padding: 5px;
   height: 30px;
+}
+
+.post-options {
+  right: 15px;
 }
 
 .post-container {
@@ -711,7 +835,6 @@ export default {
   margin-top: 10px;
   max-width: 100%;
 }
-
 .user-name {
   font-size: 15px;
 }
@@ -724,6 +847,11 @@ export default {
   height: 350px;
 }
 
+.edit-post-icon,
+.delete-post-icon {
+  font-size: 12px;
+}
+
 .comment {
   padding-top: 5px;
   padding-bottom: 3px;
@@ -734,8 +862,18 @@ export default {
   font-size: 16px;
 }
 
+.comment-input {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
 .comment-user-name {
   font-size: 14px;
+}
+
+.comment-posted-date {
+  font-size: 13px;
+  margin: 0px;
 }
 
 .comment-text {
