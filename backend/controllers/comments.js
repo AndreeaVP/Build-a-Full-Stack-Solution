@@ -30,7 +30,7 @@ exports.updateComment = (req, res) => {
     const commentId = req.params.commentId;
     const { comment } = req.body;
     const userId = req.body.userId;
-  
+    
     db.query(
       'UPDATE comments SET comment = ? WHERE comment_id = ? AND user_id = ?',
       [comment, commentId, userId],
@@ -38,7 +38,6 @@ exports.updateComment = (req, res) => {
         if (err) {
           return res.status(500).json({ error: err.message });
         }
-  
         if (results.affectedRows === 0) {
           return res.status(404).json({ error: 'Comment not found or permission denied' });
         }
@@ -84,4 +83,3 @@ exports.getCommentsByPostId = (req, res) => {
     }
   );
 };
-
