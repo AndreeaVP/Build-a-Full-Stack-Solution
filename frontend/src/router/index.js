@@ -4,6 +4,7 @@ import HomePage from '../views/home-page.vue';
 import SearchPage from '../views/search-page.vue';
 import NotificationPage from '../views/notification-page.vue';
 import UserProfilePage from '../views/userprofile-page.vue';
+import UsersPage from '../views/users-page.vue';
 
 const routes = [
   {
@@ -27,9 +28,9 @@ const routes = [
     component: NotificationPage, 
   },
   {
-    path: '/userprofile',
-    name: 'userprofile',
-    component: UserProfilePage, 
+    path: '/userspage/:user_id',
+    name: 'userspage',
+    component: UsersPage, 
   },
   {
     path: '/myprofile',
