@@ -95,7 +95,6 @@ export default {
     },
 
     async changePassword() {
-
       const token = localStorage.getItem('token');
 
       try {
@@ -123,7 +122,6 @@ export default {
     },
 
     async deleteAccount() {
-
       const token = localStorage.getItem('token');
 
       try {
@@ -182,7 +180,6 @@ export default {
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: center;
   padding: 20px;
   background-color: #fff;
   border: 1px solid #e0e0e0;
@@ -190,11 +187,11 @@ export default {
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
   max-width: 50%;
   margin: 110px auto 30px auto;
-  background: linear-gradient(45deg,  #ff9baf,#fbedc6);
+  background: linear-gradient(180deg,  rgb(169, 181, 251),#fbedc6);
   color: #000;
 }
-
 .account-image {
+  margin-left: 40px;
 
 }
   
@@ -216,20 +213,26 @@ export default {
 .email {
   margin-top: 10px;
 }
+
 .icon-settings {
   margin-left: auto;
 }
 
 .settings-container {
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
-  background-color: #fff;
+  position: absolute;
+  top: 0px;
+  right: 20px;
+  background: linear-gradient(30deg, #a3f5f7, #e0e0e0); 
   border: 1px solid #e0e0e0;
   border-radius: 5px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
   max-width: 50%;
-  margin: 30px auto;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  padding: 10px 20px;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
 }
 
 .close-button-container {
@@ -289,7 +292,7 @@ export default {
   padding: 8px;
   border-radius: 5px; 
   position: fixed;
-  top: 60px;
+  top: 70px;
   left: 0;
   right: 0;
   z-index: 1;
@@ -301,7 +304,7 @@ export default {
   padding: 8px;
   border-radius: 5px; 
   position: fixed;
-  top: 60px;
+  top: 70px;
   left: 0;
   right: 0;
   z-index: 1;
