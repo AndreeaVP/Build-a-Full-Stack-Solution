@@ -774,7 +774,7 @@ export default {
   padding: 8px;
   border-radius: 5px; 
   position: fixed;
-  top: 60px;
+  top: 70px;
   left: 0;
   right: 0;
   z-index: 1;
@@ -786,7 +786,7 @@ export default {
   padding: 8px;
   border-radius: 5px; 
   position: fixed;
-  top: 60px;
+  top: 70px;
   left: 0;
   right: 0;
   z-index: 1;
