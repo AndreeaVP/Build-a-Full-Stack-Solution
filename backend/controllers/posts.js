@@ -38,18 +38,17 @@ exports.getAllPosts = (req, res) => {
   });
 };
 
-exports.getPostById = (req, res) => {
-    const postId = req.params.postId;
+exports.getPostsByUserId = (req, res) => {
+  const userId = req.params.userId;
     
-    db.query('SELECT * FROM posts WHERE post_id = ?', [postId], (err, results) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
+  db.query('SELECT * FROM posts WHERE user_id = ?', [userId], (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
       if (results.length === 0) {
         return res.status(404).json({ error: 'Post not found' });
       }
-      const post = results[0];
-      res.status(200).json({ post });
+      res.status(200).json({ posts: results });
     });
   };
     
