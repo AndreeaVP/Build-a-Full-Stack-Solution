@@ -51,19 +51,15 @@
 
       <textarea v-else v-model="newTextualPost" class="update-post-input"></textarea>
 
-      <img crossorigin='anonymous' :src="post.image_url" alt="Posted Image" class="post-image" />
+      <img v-if="post.image_url" crossorigin="anonymous" :src="post.image_url" alt="Posted Image" class="post-image" />
 
-      <!-- Like and Dislike Section -->
+      <!-- Like Section -->
       <div class="like-comment-section">
-        <div class="like-dislike-section">
-          <div @click="likePost(post)" class="like-icon" :class="{ active: post.userLiked === 1 }">
+        <div  class="like-section">
+          <div @click="handleLikeAction(post)" class="like-icon">
             <font-awesome-icon :icon="['fas', 'thumbs-up']" class="icon" />
-            {{ post.likes }}
-        </div>
-        <div @click="dislikePost(post)" class="dislike-icon" :class="{ active: post.userLiked === -1 }">
-          <font-awesome-icon :icon="['fas', 'thumbs-down']" class="icon" />
-          {{ post.dislikes }}
-        </div>
+            <span class="like-count">{{ totalLikesPerPost[post.post_id] }} </span>
+          </div>
         </div>
 
       <!-- Comment Section -->
@@ -129,13 +125,21 @@ export default {
     }
     return null;
   },
-    totalCommentsPerPost() {
-      const totalCommentsMap = {};
-      for (const post of this.posts) {
-        totalCommentsMap[post.post_id] = post.comments.length;
-      }
-      return totalCommentsMap;
-    },
+      totalCommentsPerPost() {
+        const totalCommentsMap = {};
+        for (const post of this.posts) {
+          totalCommentsMap[post.post_id] = post.comments.length;
+        }
+        return totalCommentsMap;
+      },
+
+      totalLikesPerPost() {
+        const totalLikesMap = {};
+        for (const post of this.posts) {
+          totalLikesMap[post.post_id] = Array.isArray(post.likes) ? post.likes.length : 0;
+        }
+        return totalLikesMap;
+      },
   },
   data() {
     return {
@@ -149,9 +153,6 @@ export default {
       editingPostId: null,
       editingCommentId: null,
       editedComment: "",
-      userLiked: 0,
-      likesCount: 0,
-      dislikesCount: 0,
     };
   },
   methods: {
@@ -188,13 +189,14 @@ export default {
     },
 
     async createPost() {
-      const user = this.$store.state.user; 
+      try {
+        const user = this.$store.state.user;
         if (!user || !user.user_id) {
           this.errorMessage = "User information not available.";
         return;
         }
 
-        const user_id = user.user_id;     
+        const user_id = user.user_id;
         const token = this.$store.state.token;
         const formData = new FormData();
         formData.append("user_id", user_id);
@@ -208,24 +210,24 @@ export default {
           },
         };
 
-      try {
         const response = await axios.post("/api/posts", formData, config);
 
-          if (response.status === 201) {
-            this.successMessage = response.data.message;
-            this.postContent = '';
-            this.errorMessage = "";
-            this.selectedFile = null;
-            this.previewUrl = null;
+        if (response.status === 201) {
+          this.successMessage = response.data.message;
+          this.postContent = '';
+          this.errorMessage = "";
+          this.selectedFile = null;
+          this.previewUrl = null;
 
-            await this.fetchPosts();
-            setTimeout(() => {
+        await this.fetchPosts();
+          setTimeout(() => {
             this.successMessage = '';
-            }, 1500);
-          } else {
-          this.errorMessage = "Failed to create the post";
+        }, 1500);
+        } else {
+            this.errorMessage = "Failed to create the post";
         }
       } catch (error) {
+        console.error('Error creating the post:', error);
         this.errorMessage = 'Error creating the post.';
       }
     },
@@ -238,16 +240,18 @@ export default {
         };
 
         const response = await axios.get('/api/posts', { headers });
-          if (response.status === 200) {
-            this.posts = response.data.posts
-              .map(post => ({ ...post, comments: [] }))
-              .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-          } else {
-            this.errorMessage = 'Failed to fetch posts. Please try again.';
-          }
 
+        if (response.status === 200) {
+          this.posts = response.data.posts
+          .map(post => ({ ...post, comments: [], likes: 0 }))
+          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        } else {
+            console.error('Failed to fetch posts. Please try again.');
+            this.errorMessage = 'Failed to fetch posts. Please try again.';
+        }
       } catch (error) {
-        console.error('Error fetching posts:', error);
+          console.error('Error fetching posts:', error);
+          this.errorMessage = 'Error fetching posts. Please try again.';
       }
     },
 
@@ -370,6 +374,10 @@ export default {
       for (const post of this.posts) {
       await this.fetchComments(post);
       }
+
+      for (const post of this.posts) {
+        await this.fetchLikes(post);
+      }
     },  
     
     async saveEditedComment(comment) {
@@ -443,6 +451,60 @@ export default {
           this.errorMessage = 'An error occurred while deleting the comment. Please try again.';
       }
     },
+
+    async handleLikeAction(post, action) {
+      try {
+        const token = this.$store.state.token || localStorage.getItem('token');
+        const userData = this.$store.state.user || JSON.parse(localStorage.getItem('user'));
+        const userId = userData.user_id;
+
+        const headers = {
+          Authorization: `Bearer ${token}`,
+        };
+
+        const response = await axios.post('/api/likes', {
+          post_id: post.post_id,
+          user_id: userId,
+          like: action === 'like' ? 1 : 0,
+        }, { headers });
+
+        if (response.status === 200) {
+          this.successMessage = response.data.action === 'add' ? 'Like added successfully' : 'Like removed successfully';
+          this.errorMessage = '';
+          await this.fetchLikes(post);
+          setTimeout(() => {
+            this.successMessage = '';
+          }, 1500);
+        } else {
+            console.error('Error adding like:', response);
+            this.errorMessage = 'Failed to add like. Please try again.';
+        }
+      } catch (error) {
+        console.error('Error handling like action:', error);
+        this.errorMessage = 'An error occurred while adding the like. Please try again.';
+      }
+    },
+
+    async fetchLikes(post) {
+      try {
+        const postId = post.post_id;
+        const token = this.$store.state.token || localStorage.getItem('token');
+        const headers = {
+          Authorization: `Bearer ${token}`,
+        };
+
+        const response = await axios.get(`/api/likes/${postId}`, { headers });
+
+        if (response.status === 200) {
+          post.likes = response.data;
+        } else {
+          console.error('Failed to fetch likes:', response);
+        }
+      } catch (error) {
+          console.error('Error fetching likes:', error);
+          this.errorMessage = 'An error occurred while fetching the like. Please try again.';
+      }
+    }, 
   },
 
   created() {
@@ -658,7 +720,7 @@ export default {
   margin: 10px 0;
 }
 
-.like-dislike-section {
+.like-section {
   display: flex;
   align-items: center;
   padding: 10px;
