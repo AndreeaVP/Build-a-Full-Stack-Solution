@@ -82,13 +82,29 @@ exports.updatePost = (req, res) => {
 
 exports.deletePost = (req, res) => {
   const postId = req.params.postId;
-  db.query('DELETE FROM posts WHERE post_id = ?', [postId], (err, results) => {
+
+  db.query('DELETE FROM likes WHERE post_id = ?', [postId], (err, likeResults) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
-    if (results.affectedRows === 0) {
-      return res.status(404).json({ error: 'Post not found' });
-    }
-    res.status(200).json({ message: 'Post deleted successfully' });
+
+    db.query('DELETE FROM comments WHERE post_id = ?', [postId], (err, commentResults) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+
+      db.query('DELETE FROM posts WHERE post_id = ?', [postId], (err, postResults) => {
+        if (err) {
+          return res.status(500).json({ error: err.message });
+        }
+
+        if (postResults.affectedRows === 0) {
+          return res.status(404).json({ error: 'Post not found' });
+        }
+
+        res.status(200).json({ message: 'Post deleted successfully' });
+      });
+    });
   });
 };
+
