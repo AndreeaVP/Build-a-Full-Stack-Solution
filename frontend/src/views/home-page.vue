@@ -38,7 +38,7 @@
 
       <div class="post-options">
         <font-awesome-icon v-if="userData && userData.user_id === post.user_id" :icon="['fas', 'edit']" class="edit-post-icon" @click="toggleEditMode(post)" />
-        <font-awesome-icon v-if="userData && userData.user_id === post.user_id" :icon="['fas', 'trash']" class="delete-post-icon" @click="deletePost(post)" />
+        <font-awesome-icon v-if="userData && userData.user_id === post.user_id" :icon="['fas', 'trash']" class="delete-post-icon" @click="confirmDeletePost(post)" />
       </div>
 
       <div>
@@ -285,6 +285,43 @@ export default {
         console.error('Error updating post:', error);
         this.successMessage = '';
         this.errorMessage = 'Error updating the post';
+      }
+    },
+
+    async confirmDeletePost(post) {
+      try {
+        const confirmation = confirm('Are you sure you want to delete this post?');
+
+        if (confirmation) {
+          await this.deletePost(post);
+        }
+      } catch (error) {
+        console.error('Error confirming delete:', error);
+      }
+    },
+
+    async deletePost(post) {
+      try {
+        const token = this.$store.state.token || localStorage.getItem('token');
+        const headers = {
+          Authorization: `Bearer ${token}`,
+        };
+
+        const response = await axios.delete(`/api/posts/${post.post_id}`, { headers });
+
+        if (response.status === 200) {
+          this.successMessage = 'Post deleted successfully';
+          this.errorMessage = '';
+          await this.fetchPosts();
+          setTimeout(() => {
+            this.successMessage = '';
+          }, 1500);
+        } else {
+          this.errorMessage = 'Failed to delete the post';
+        }
+      } catch (error) {
+        console.error('Error deleting the post:', error);
+        this.errorMessage = 'Error deleting the post.';
       }
     },
 
