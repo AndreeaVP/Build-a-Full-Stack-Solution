@@ -68,15 +68,36 @@ exports.updateUser = (req, res) => {
 };
 
 exports.deleteUser = (req, res) => {
-    const userId = req.params.id;
-    db.query('DELETE FROM users WHERE user_id = ?', [userId], (err, results) => {
+  const userId = req.params.id;
+
+  db.query('DELETE FROM comments WHERE user_id = ?', [userId], (err) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+
+    db.query('DELETE FROM likes WHERE user_id = ?', [userId], (err) => {
       if (err) {
         return res.status(500).json({ error: err.message });
       }
-      if (results.affectedRows === 0) {
-        return res.status(404).json({ error: 'User not found' });
-      }
-      res.status(200).json({ message: 'User account deleted successfully' });
+
+      db.query('DELETE FROM posts WHERE user_id = ?', [userId], (err) => {
+        if (err) {
+          return res.status(500).json({ error: err.message });
+        }
+
+        db.query('DELETE FROM users WHERE user_id = ?', [userId], (err, results) => {
+          if (err) {
+            return res.status(500).json({ error: err.message });
+          }
+
+          if (results.affectedRows === 0) {
+            return res.status(404).json({ error: 'User not found' });
+          }
+
+          res.status(200).json({ message: 'User account deleted successfully' });
+        });
+      });
     });
-  };
+  });
+};
   
