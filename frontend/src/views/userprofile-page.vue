@@ -122,31 +122,38 @@ export default {
     },
 
     async deleteAccount() {
-      const token = localStorage.getItem('token');
+  const token = localStorage.getItem('token');
 
-      try {
-        const userId = this.$store.state.user.user_id;
+  // Display confirmation dialog
+  const confirmed = confirm("Are you sure you want to delete your account? This action cannot be undone.");
 
-        const response = await axios.delete(`/api/user/${userId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+  if (!confirmed) {
+    return; // User canceled the deletion
+  }
 
-      if (response.status === 200) {
-        this.successMessage = response.data.message;
-        this.errorMessage = '';
-        setTimeout(() => {
+  try {
+    const userId = this.$store.state.user.user_id;
+
+    const response = await axios.delete(`/api/user/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.status === 200) {
+      this.successMessage = response.data.message;
+      this.errorMessage = '';
+      setTimeout(() => {
         this.successMessage = '';
         this.$router.push({ name: 'login' });
       }, 1500);
-      } else {
-        this.errorMessage = 'Error deleting user account. Please try again later.';
-      }
-      } catch (error) {
-        console.error('Error deleting user account:', error);
-      }
-    },
+    } else {
+      this.errorMessage = 'Error deleting user account. Please try again later.';
+    }
+  } catch (error) {
+    console.error('Error deleting user account:', error);
+  }
+},
   },
 
   async created() {
