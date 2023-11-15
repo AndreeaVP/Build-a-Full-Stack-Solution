@@ -124,11 +124,10 @@ export default {
     async deleteAccount() {
   const token = localStorage.getItem('token');
 
-  // Display confirmation dialog
   const confirmed = confirm("Are you sure you want to delete your account? This action cannot be undone.");
 
   if (!confirmed) {
-    return; // User canceled the deletion
+    return;
   }
 
   try {
