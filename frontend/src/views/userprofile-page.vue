@@ -228,7 +228,7 @@ export default {
   position: absolute;
   top: 0px;
   right: 20px;
-  background: linear-gradient(30deg, #a3f5f7, #e0e0e0); 
+  background-color: white;
   border: 1px solid #e0e0e0;
   border-radius: 5px;
   max-width: 50%;
@@ -288,7 +288,7 @@ export default {
 }
 
 .separator {
-  margin: 20px 0;
+  width: 90%;
   border: 1px solid #eb0db3;
 }
 
