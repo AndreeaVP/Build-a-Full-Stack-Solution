@@ -30,8 +30,7 @@ export async function createPost() {
         this.errorMessage = "";
         this.selectedFile = null;
         this.previewUrl = null;
-
-      await this.fetchPosts();
+        await loadPostsAndComments.call(this);
         setTimeout(() => {
           this.successMessage = '';
       }, 1500);
@@ -85,7 +84,6 @@ export async function createPost() {
         this.successMessage = 'Post updated successfully';
         this.errorMessage = '';
         this.editingPostId = null;
-
         await loadPostsAndComments.call(this);
         setTimeout(() => {
           this.successMessage = '';
@@ -126,7 +124,7 @@ export async function createPost() {
       if (response.status === 200) {
         this.successMessage = 'Post deleted successfully';
         this.errorMessage = '';
-        await fetchPosts.call(this);
+        await loadPostsAndComments.call(this);
         setTimeout(() => {
           this.successMessage = '';
         }, 1500);
