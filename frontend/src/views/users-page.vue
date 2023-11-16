@@ -18,69 +18,77 @@
       </div>
 
       <!-- User's Posts -->
-      <div v-for="post in userPosts" :key="post.post_id" class="post-container">
-        <div class="user-section">
-          <font-awesome-icon :icon="['fas', 'user']" class="user-icon" />
-          <div class="user-details">
-            <div class="user-name">{{ user.firstname }} {{ user.lastname }}</div>
-            <div class="post-date">{{ formatDate(post.created_at) }}</div>
+      <div v-if="userPosts.length > 0">
+
+        <div v-for="post in userPosts" :key="post.post_id" class="post-container">
+          <div class="user-section">
+            <font-awesome-icon :icon="['fas', 'user']" class="user-icon" />
+            <div class="user-details">
+              <div class="user-name">{{ user.firstname }} {{ user.lastname }}</div>
+              <div class="post-date">{{ formatDate(post.created_at) }}</div>
+            </div>
           </div>
-        </div>
 
-        <div class="post-text">
-          {{ post.textual_post }}
-        </div>
+          <div class="post-text">
+            {{ post.textual_post }}
+          </div>
 
-        <img v-if="post.image_url" crossorigin="anonymous" :src="post.image_url" alt="Posted Image" class="post-image" />
+          <img v-if="post.image_url" crossorigin="anonymous" :src="post.image_url" alt="Posted Image" class="post-image" />
       
-        <!-- Like and Comment Section -->
-        <div class="like-comment-section">
-          <div class="like-section">
-            <div @click="handleLikeAction(post)" class="like-icon">
-              <font-awesome-icon :icon="['fas', 'thumbs-up']" class="icon" />
-              <span class="like-count">{{ post.totalLikes }}</span>
+          <!-- Like and Comment Section -->
+          <div class="like-comment-section">
+            <div class="like-section">
+              <div @click="handleLikeAction(post)" class="like-icon" :class="{ 'liked': post.userLiked }">
+                <font-awesome-icon :icon="['fas', 'thumbs-up']" class="icon" />
+                <span class="like-count">{{ post.totalLikes }}</span>
+                <span v-if="post.userLiked" class="like-text">Liked</span>
             </div>
-          </div>
-
-          <div class="comment-section">
-            <div @click="toggleCommentInput(post)" class="comment-icon">
-              <font-awesome-icon :icon="['fas', 'comment']" class="icon" />
-              <span class="comment-count">{{ post.totalComments }}</span>
             </div>
-          </div>
-        </div>   
 
-        <!-- Comment Input -->
-        <div class="comment-input" v-if="post.showCommentInput">
-          <input type="text" class="comment-input-text" v-model="post.newComment" @keyup.enter="addComment(post)" placeholder="  Add a comment" />
-          <font-awesome-icon @click="addComment(post)" :icon="['fas', 'paper-plane']" class="icon" />
-        </div>
-
-        <!-- Comments Section -->
-        <div class="post-comments-section">
-          <div class="comment" v-for="comment in post.comments" :key="comment.comment_id">
-            <div class="comment-details-container">
-              <font-awesome-icon :icon="['fas', 'user']" class="comment-user-icon" />
-              <div class="comment-details">
-                <span class="comment-user-name">{{ comment.firstname }} {{ comment.lastname }}</span>
-                <p class="comment-posted-date">Posted on {{ formatDate(comment.created_at) }}</p>
+            <div class="comment-section">
+              <div @click="toggleCommentInput(post)" class="comment-icon">
+                <font-awesome-icon :icon="['fas', 'comment']" class="icon" />
+                <span class="comment-count">{{ post.totalComments }}</span>
               </div>
             </div>
+          </div>   
 
-            <div class="comment-actions">
-              <font-awesome-icon v-if="userData && userData.user_id === comment.user_id" :icon="['fas', 'square-pen']" class="comment-edit-icon" @click="editComment(comment)" />
-              <font-awesome-icon v-if="userData && userData.user_id === comment.user_id" :icon="['fas', 'trash']" class="comment-delete-icon" @click="deleteUserComment(comment)" />
+          <!-- Comment Input -->
+          <div class="comment-input" v-if="post.showCommentInput">
+            <input type="text" class="comment-input-text" v-model="post.newComment" @keyup.enter="addComment(post)" placeholder="  Add a comment" />
+            <font-awesome-icon @click="addComment(post)" :icon="['fas', 'paper-plane']" class="icon" />
+          </div>
+
+          <!-- Comments Section -->
+          <div class="post-comments-section">
+            <div class="comment" v-for="comment in post.comments" :key="comment.comment_id">
+              <div class="comment-details-container">
+                <font-awesome-icon :icon="['fas', 'user']" class="comment-user-icon" />
+                <div class="comment-details">
+                  <span class="comment-user-name">{{ comment.firstname }} {{ comment.lastname }}</span>
+                  <p class="comment-posted-date">Posted on {{ formatDate(comment.created_at) }}</p>
+                </div>
+              </div>
+
+              <div class="comment-actions">
+                <font-awesome-icon v-if="userData && userData.user_id === comment.user_id" :icon="['fas', 'pencil-alt']" class="comment-edit-icon" @click="editComment(comment)" />
+                <font-awesome-icon v-if="userData && userData.user_id === comment.user_id" :icon="['fas', 'trash']" class="comment-delete-icon" @click="deleteUserComment(comment)" />
+              </div>
+
+              <div v-if="editingCommentId === comment.comment_id">
+                <input type="text" class="edit-comment-input" v-model="editedComment" />
+                <font-awesome-icon class="save-edit-comment" @click="saveEditedComment(comment)" :icon="['fas', 'check']"/>
+              </div>
+
+              <div class="comment-text">{{ comment.comment }}</div>
             </div>
-
-            <div v-if="editingCommentId === comment.comment_id">
-              <input type="text" class="edit-comment-input" v-model="editedComment" />
-              <font-awesome-icon class="save-edit-comment" @click="saveEditedComment(comment)" :icon="['fas', 'check']"/>
-            </div>
-
-            <div class="comment-text">{{ comment.comment }}</div>
           </div>
         </div>
       </div>
+
+      <div v-else>
+       <p>No posts available for this user.</p>
+      </div> 
     </div>
   </template>
 
@@ -161,17 +169,24 @@ export default {
 
         const response = await axios.get(`/api/posts/${userId}`, config);
 
+        console.log('Response from server:', response);
+
         if (response.status === 200) {
-          this.userPosts = response.data.posts.map(post => ({
-            ...post,
-            comments: [], 
-            likes: 0,  
-          }));
+          if (response.data.posts.length > 0) {
+        this.userPosts = response.data.posts.map(post => ({
+          ...post,
+          comments: [], 
+          likes: 0,  
+        }));
 
         await Promise.all(this.userPosts.map(async post => {
           await this.fetchComments(post);
           await this.fetchLikes(post);
         }));
+      } else if (response.status === 404) {
+        this.userPosts = [];
+        this.errorMessage = 'No posts available for this user.';
+      }
         } else {
             console.error('Failed to fetch user posts. Please try again.');
             this.errorMessage = 'Failed to fetch user posts. Please try again.';
