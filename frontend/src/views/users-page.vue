@@ -71,8 +71,11 @@
               </div>
 
               <div class="comment-actions">
-                <font-awesome-icon v-if="userData && userData.user_id === comment.user_id" :icon="['fas', 'pencil-alt']" class="comment-edit-icon" @click="editComment(comment)" />
-                <font-awesome-icon v-if="userData && userData.user_id === comment.user_id" :icon="['fas', 'trash']" class="comment-delete-icon" @click="deleteUserComment(comment)" />
+                <font-awesome-icon v-if="userData && userData.user_id === comment.user_id && !comment.showOptions" icon="ellipsis-h" class="ellipsis-icon" @click="toggleOptionsComment(comment)" />
+                <div class="comment-actions-container" v-if="comment.showOptions">
+                  <font-awesome-icon v-if="userData && userData.user_id === comment.user_id" :icon="['fas', 'pencil-alt']" class="comment-edit-icon" @click="editComment(comment)" />
+                  <font-awesome-icon v-if="userData && userData.user_id === comment.user_id" :icon="['fas', 'trash']" class="comment-delete-icon" @click="confirmDeleteComment(comment)" />
+                </div>
               </div>
 
               <div v-if="editingCommentId === comment.comment_id">
@@ -134,6 +137,10 @@ export default {
     editComment(comment) {
       this.editingCommentId = comment.comment_id;
       this.editedComment = comment.comment;     
+    },
+
+    toggleOptionsComment(comment) {
+      comment.showOptions = !comment.showOptions;
     },
 
     async fetchUserDetails(userId) {
@@ -222,6 +229,11 @@ export default {
     },
 
     async deleteUserComment(comment) {
+      const confirmed = window.confirm("Are you sure you want to delete this comment?");
+
+  if (!confirmed) {
+    return;
+  }
     try {
       const token = this.$store.state.token || localStorage.getItem('token');
       const userId = this.userData.user_id;
@@ -385,6 +397,15 @@ margin-left: 40px;
   color: green;
 }
 
+.liked {
+  color: blue;
+}
+
+.like-text {
+  margin-left: 5px;
+  font-size: 15px;
+}
+
 .comment-section {
   display: flex;
   align-items: center;
@@ -458,12 +479,17 @@ margin-left: 40px;
   display: flex;
   top:25px;
   right: 15px;
-  gap: 10px;
+}
+
+.comment-actions-container {
+  display: flex;
+  gap: 20px;
 }
 
 .comment-edit-icon,
 .comment-delete-icon {
   cursor: pointer;
+  font-size: 14px;
 }
 
 .edit-comment-input {
