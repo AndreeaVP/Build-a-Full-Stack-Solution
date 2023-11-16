@@ -93,6 +93,7 @@ export async function createPost() {
         this.successMessage = '';
         this.errorMessage = 'Failed to update the post';
       }
+      
     } catch (error) {
       console.error('Error updating post:', error);
       this.successMessage = '';
@@ -327,6 +328,7 @@ export async function createPost() {
       }, { headers });
 
       if (response.status === 200) {
+        post.userLiked = action === 'like';
         this.successMessage = response.data.action === 'add' ? 'Like added successfully' : 'Like removed successfully';
         this.errorMessage = '';
         await this.fetchLikes(post);
@@ -347,6 +349,8 @@ export async function createPost() {
     try {
       const postId = post.post_id;
       const token = this.$store.state.token || localStorage.getItem('token');
+      const userData = this.$store.state.user || JSON.parse(localStorage.getItem('user'));
+      const userId = userData.user_id;
       const headers = {
         Authorization: `Bearer ${token}`,
       };
@@ -356,6 +360,7 @@ export async function createPost() {
       if (response.status === 200) {
         post.likes = response.data;
         post.totalLikes = response.data.length;
+        post.userLiked = response.data.some(like => like.user_id === userId);
       } else {
         console.error('Failed to fetch likes:', response);
         this.errorMessage = 'Failed to fetch likes. Please try again.';
