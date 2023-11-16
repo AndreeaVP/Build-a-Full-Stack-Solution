@@ -37,8 +37,21 @@
       </div>
 
       <div class="post-options">
-        <font-awesome-icon v-if="userData && userData.user_id === post.user_id" :icon="['fas', 'edit']" class="edit-post-icon" @click="toggleEditMode(post)" />
-        <font-awesome-icon v-if="userData && userData.user_id === post.user_id" :icon="['fas', 'trash']" class="delete-post-icon" @click="confirmDeletePost(post)" />
+        <div v-if="userData && userData.user_id === post.user_id && post.showOptions" class="edit-option" @click="toggleEditMode(post)">
+          <div class="update-post-content">
+            <font-awesome-icon :icon="['fas', 'pencil-alt']" class="update-post-icon" />
+            <span class="edit-post-text">Edit</span>
+            </div>
+          </div>
+
+        <div v-if="userData && userData.user_id === post.user_id && post.showOptions" class="delete-option" @click="confirmDeletePost(post)">
+          <div class="delete-post-content">
+            <font-awesome-icon :icon="['fas', 'trash']" class="delete-post-icon" />
+            <span class="delete-post-text">Delete</span>
+          </div>
+        </div>
+
+        <font-awesome-icon v-if="userData && userData.user_id === post.user_id" icon="ellipsis-h" class="ellipsis-icon" @click="toggleOptions(post)"/>
       </div>
 
       <div>
@@ -56,9 +69,10 @@
       <!-- Like Section -->
       <div class="like-comment-section">
         <div  class="like-section">
-          <div @click="handleLikeAction(post)" class="like-icon">
+          <div @click="handleLikeAction(post)" class="like-icon" :class="{ 'liked': post.userLiked }">
             <font-awesome-icon :icon="['fas', 'thumbs-up']" class="icon" />
             <span class="like-count">{{ post.totalLikes }}</span>
+            <span v-if="post.userLiked" class="like-text">Liked</span>
           </div>
         </div>
 
@@ -87,8 +101,11 @@
             </div>
 
             <div class="comment-actions">
-              <font-awesome-icon v-if="userData && userData.user_id === comment.user_id" :icon="['fas', 'square-pen']" class="comment-edit-icon" @click="editComment(comment)" />
-              <font-awesome-icon v-if="userData && userData.user_id === comment.user_id" :icon="['fas', 'trash']" class="comment-delete-icon" @click="confirmDeleteComment(comment)" />
+              <font-awesome-icon v-if="userData && userData.user_id === comment.user_id && !comment.showOptions" icon="ellipsis-h" class="ellipsis-icon" @click="toggleOptionsComment(comment)" />
+              <div class="comment-actions-container" v-if="comment.showOptions">
+                <font-awesome-icon v-if="userData && userData.user_id === comment.user_id" :icon="['fas', 'pencil-alt']" class="comment-edit-icon" @click="editComment(comment)" />
+                <font-awesome-icon v-if="userData && userData.user_id === comment.user_id" :icon="['fas', 'trash']" class="comment-delete-icon" @click="confirmDeleteComment(comment)" />
+              </div>
             </div>
 
             <div v-if="editingCommentId === comment.comment_id">
@@ -134,6 +151,7 @@ export default {
       successMessage: '',
       errorMessage: '',
       posts: [],
+      showOptions: false,
       comments: [],
       editingPostId: null,
       editingCommentId: null,
@@ -159,6 +177,14 @@ export default {
     toggleEditMode(post) {
       this.editingPostId = post.post_id;
       this.newTextualPost = post.textual_post;
+    },
+
+    toggleOptions(post) {
+      post.showOptions = !post.showOptions;
+    },
+
+    toggleOptionsComment(comment) {
+      comment.showOptions = !comment.showOptions;
     },
 
     editComment(comment) {
@@ -383,22 +409,34 @@ export default {
 .post-options {
   position: absolute;
   display: flex;
-  flex-direction: column;
+  gap: 20px;
   top: 30px;
   right: 35px;
 }
 
-.edit-post-icon {
-  font-size: 15px;
+.update-post-content {
+  display: flex;
+  justify-content: center;
   cursor: pointer;
+}
+
+.delete-post-content {
+  display: flex;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.update-post-icon {
+  font-size: 15px;
   margin-bottom: 15px;
   color: grey;
+  margin-right: 7px;
 }
 
 .delete-post-icon {
   font-size: 15px;
-  cursor: pointer;
   color: red;
+  margin-right: 7px;
 }
 
 .update-post-input {
@@ -447,6 +485,14 @@ export default {
 .like-icon {
   cursor: pointer;
   color: green;
+}
+.liked {
+  color: blue;
+}
+
+.like-text {
+  margin-left: 5px;
+  font-size: 15px;
 }
 
 .comment-icon {
@@ -522,12 +568,17 @@ export default {
   display: flex;
   top:25px;
   right: 15px;
-  gap: 10px;
+}
+
+.comment-actions-container {
+  display: flex;
+  gap: 20px;
 }
 
 .comment-edit-icon,
 .comment-delete-icon {
   cursor: pointer;
+  font-size: 14px;
 }
 
 .edit-comment-input {
@@ -621,7 +672,7 @@ export default {
   height: 350px;
 }
 
-.edit-post-icon,
+.update-post-icon,
 .delete-post-icon {
   font-size: 12px;
 }
