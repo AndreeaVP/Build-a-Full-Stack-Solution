@@ -46,7 +46,7 @@ exports.getPostsByUserId = (req, res) => {
       return res.status(500).json({ error: err.message });
     }
       if (results.length === 0) {
-        return res.status(404).json({ error: 'Post not found' });
+        return res.status(200).json({ posts: [] });
       }
       res.status(200).json({ posts: results });
     });
