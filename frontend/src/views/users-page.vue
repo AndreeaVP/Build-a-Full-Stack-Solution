@@ -1,99 +1,106 @@
 <template>
     <div>
       <app-header></app-header>
-  
-      <div v-if="successMessage" class="success-message">{{ successMessage }}</div>
-      <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
-  
-      <div class="user-profile">
-        <div class="account-image">
-          <font-awesome-icon :icon="['fas', 'user']" class="user-icon" />
-        </div>
-  
-        <div class="profile-info">
-          <p>{{ user.firstname }} {{ user.lastname }}</p>
-          <p class="email">{{ user.email }}</p>
-        </div>
 
-      </div>
-
-      <!-- User's Posts -->
-      <div v-if="userPosts.length > 0">
-
-        <div v-for="post in userPosts" :key="post.post_id" class="post-container">
-          <div class="user-section">
-            <font-awesome-icon :icon="['fas', 'user']" class="user-icon" />
-            <div class="user-details">
-              <div class="user-name">{{ user.firstname }} {{ user.lastname }}</div>
-              <div class="post-date">{{ formatDate(post.created_at) }}</div>
-            </div>
-          </div>
-
-          <div class="post-text">
-            {{ post.textual_post }}
-          </div>
-
-          <img v-if="post.image_url" crossorigin="anonymous" :src="post.image_url" alt="Posted Image" class="post-image" />
-      
-          <!-- Like and Comment Section -->
-          <div class="like-comment-section">
-            <div class="like-section">
-              <div @click="handleLikeAction(post)" class="like-icon" :class="{ 'liked': post.userLiked }">
-                <font-awesome-icon :icon="['fas', 'thumbs-up']" class="icon" />
-                <span class="like-count">{{ post.totalLikes }}</span>
-                <span v-if="post.userLiked" class="like-text">Liked</span>
-            </div>
-            </div>
-
-            <div class="comment-section">
-              <div @click="toggleCommentInput(post)" class="comment-icon">
-                <font-awesome-icon :icon="['fas', 'comment']" class="icon" />
-                <span class="comment-count">{{ post.totalComments }}</span>
-              </div>
-            </div>
-          </div>   
-
-          <!-- Comment Input -->
-          <div class="comment-input" v-if="post.showCommentInput">
-            <input type="text" class="comment-input-text" v-model="post.newComment" @keyup.enter="addComment(post)" placeholder="  Add a comment" />
-            <font-awesome-icon @click="addComment(post)" :icon="['fas', 'paper-plane']" class="icon" />
-          </div>
-
-          <!-- Comments Section -->
-          <div class="post-comments-section">
-            <div class="comment" v-for="comment in post.comments" :key="comment.comment_id">
-              <div class="comment-details-container">
-                <font-awesome-icon :icon="['fas', 'user']" class="comment-user-icon" />
-                <div class="comment-details">
-                  <span class="comment-user-name">{{ comment.firstname }} {{ comment.lastname }}</span>
-                  <p class="comment-posted-date">Posted on {{ formatDate(comment.created_at) }}</p>
-                </div>
-              </div>
-
-              <div class="comment-actions">
-                <font-awesome-icon v-if="userData && userData.user_id === comment.user_id && !comment.showOptions" icon="ellipsis-h" class="ellipsis-icon" @click="toggleOptionsComment(comment)" />
-                <div class="comment-actions-container" v-if="comment.showOptions">
-                  <font-awesome-icon v-if="userData && userData.user_id === comment.user_id" :icon="['fas', 'pencil-alt']" class="comment-edit-icon" @click="editComment(comment)" />
-                  <font-awesome-icon v-if="userData && userData.user_id === comment.user_id" :icon="['fas', 'trash']" class="comment-delete-icon" @click="confirmDeleteComment(comment)" />
-                </div>
-              </div>
-
-              <div v-if="editingCommentId === comment.comment_id">
-                <input type="text" class="edit-comment-input" v-model="editedComment" />
-                <font-awesome-icon class="save-edit-comment" @click="saveEditedComment(comment)" :icon="['fas', 'check']"/>
-              </div>
-
-              <div class="comment-text">{{ comment.comment }}</div>
-            </div>
-          </div>
+      <div v-if="loading" class="spinner-container">
+        <div class="spinner">
+          <font-awesome-icon icon="spinner" class="fa-spin fa-3x" />
         </div>
       </div>
 
       <div v-else>
+        <div v-if="successMessage" class="success-message">{{ successMessage }}</div>
+        <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
+  
+        <div class="user-profile">
+          <div class="account-image">
+            <font-awesome-icon :icon="['fas', 'user']" class="user-icon" />
+          </div>
+  
+          <div class="profile-info">
+            <p>{{ user.firstname }} {{ user.lastname }}</p>
+            <p class="email">{{ user.email }}</p>
+          </div>
+        </div>
+
+      <!-- User's Posts -->
+        <div v-if="userPosts.length > 0">
+
+          <div v-for="post in userPosts" :key="post.post_id" class="post-container">
+            <div class="user-section">
+              <font-awesome-icon :icon="['fas', 'user']" class="user-icon" />
+              <div class="user-details">
+                <div class="user-name">{{ user.firstname }} {{ user.lastname }}</div>
+                <div class="post-date">{{ formatDate(post.created_at) }}</div>
+              </div>
+            </div>
+
+            <div class="post-text">
+              {{ post.textual_post }}
+            </div>
+
+            <img v-if="post.image_url" crossorigin="anonymous" :src="post.image_url" alt="Posted Image" class="post-image" />
+      
+            <!-- Like and Comment Section -->
+            <div class="like-comment-section">
+              <div class="like-section">
+                <div @click="handleLikeAction(post)" class="like-icon" :class="{ 'liked': post.userLiked }">
+                  <font-awesome-icon :icon="['fas', 'thumbs-up']" class="icon" />
+                  <span class="like-count">{{ post.totalLikes }}</span>
+                  <span v-if="post.userLiked" class="like-text">Liked</span>
+                </div>
+              </div>
+
+              <div class="comment-section">
+                <div @click="toggleCommentInput(post)" class="comment-icon">
+                  <font-awesome-icon :icon="['fas', 'comment']" class="icon" />
+                  <span class="comment-count">{{ post.totalComments }}</span>
+                </div>
+              </div>
+            </div>   
+
+            <!-- Comment Input -->
+            <div class="comment-input" v-if="post.showCommentInput">
+              <input type="text" class="comment-input-text" v-model="post.newComment" @keyup.enter="addComment(post)" placeholder="  Add a comment" />
+              <font-awesome-icon @click="addComment(post)" :icon="['fas', 'paper-plane']" class="icon" />
+            </div>
+
+            <!-- Comments Section -->
+            <div class="post-comments-section">
+              <div class="comment" v-for="comment in post.comments" :key="comment.comment_id">
+                <div class="comment-details-container">
+                  <font-awesome-icon :icon="['fas', 'user']" class="comment-user-icon" />
+                  <div class="comment-details">
+                    <span class="comment-user-name">{{ comment.firstname }} {{ comment.lastname }}</span>
+                    <p class="comment-posted-date">Posted on {{ formatDate(comment.created_at) }}</p>
+                  </div>
+                </div>
+
+                <div class="comment-actions">
+                  <font-awesome-icon v-if="userData && userData.user_id === comment.user_id && !comment.showOptions" icon="ellipsis-h" class="ellipsis-icon" @click="toggleOptionsComment(comment)" />
+                  <div class="comment-actions-container" v-if="comment.showOptions">
+                    <font-awesome-icon v-if="userData && userData.user_id === comment.user_id" :icon="['fas', 'pencil-alt']" class="comment-edit-icon" @click="editComment(comment)" />
+                    <font-awesome-icon v-if="userData && userData.user_id === comment.user_id" :icon="['fas', 'trash']" class="comment-delete-icon" @click="confirmDeleteComment(comment)" />
+                  </div>
+                </div>
+
+                <div v-if="editingCommentId === comment.comment_id">
+                  <input type="text" class="edit-comment-input" v-model="editedComment" />
+                  <font-awesome-icon class="save-edit-comment" @click="saveEditedComment(comment)" :icon="['fas', 'check']"/>
+                </div>
+
+                <div class="comment-text">{{ comment.comment }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      <div v-else>
        <p>No posts available for this user.</p>
       </div> 
+      </div>
     </div>
-  </template>
+</template>
 
 <script>
 import AppHeader from '@/components/app-header.vue';
@@ -125,6 +132,7 @@ export default {
       user: {
         image_url: null,
       },
+      loading: true,
       userPosts: [],
       comments: [],
       successMessage: '',
@@ -279,16 +287,56 @@ export default {
   },
 
   async created() {
-    const user_id = this.$route.params.user_id;
-    if (user_id) {
+  const user_id = this.$route.params.user_id;
+  if (user_id) {
+    try {
+      this.loading = true;
       await this.fetchUserDetails(user_id);
       await this.fetchUserPosts(user_id);
+    } finally {
+      setTimeout(() => {
+        this.loading = false;
+      }, 1300);
     }
-  },
+  }
+},
 };
 </script>
 
 <style scoped>
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.spinner {
+  animation: spin 1.3s linear infinite, changeColor 5s infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes changeColor {
+  0% {
+    color: blue;
+  }
+
+  50% {
+    color: red;
+  }
+  75% {
+    color: #8B008B;
+  }
+}
+
 .user-profile {
   display: flex;
   align-items: center;
