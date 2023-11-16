@@ -81,6 +81,7 @@ export async function createPost() {
         },
       });
       if (response.status === 200) {
+        post.showOptions = false;
         this.successMessage = 'Post updated successfully';
         this.errorMessage = '';
         this.editingPostId = null;
@@ -255,6 +256,7 @@ export async function createPost() {
         comment.comment = this.editedComment;
         this.editedComment = '';
         this.editingCommentId = null;
+        comment.showOptions = false;
         this.successMessage = 'Comment updated successfully';
         this.errorMessage = '';
         setTimeout(() => {
