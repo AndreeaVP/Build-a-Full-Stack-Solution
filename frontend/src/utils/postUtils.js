@@ -85,7 +85,7 @@ export async function createPost() {
         this.errorMessage = '';
         this.editingPostId = null;
 
-        await this.fetchPosts();
+        await loadPostsAndComments.call(this);
         setTimeout(() => {
           this.successMessage = '';
         }, 1500);
