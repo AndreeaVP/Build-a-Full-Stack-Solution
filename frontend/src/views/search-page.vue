@@ -85,7 +85,7 @@ export default {
           }
           this.$router.push({ name: 'userspage', params: { user_id } });
           this.clearMessages();
-        }, 1200);
+        }, 1000);
       } catch (error) {
         this.showErrorMessage('Error during redirection: ' + error.message);
         this.clearMessages();
