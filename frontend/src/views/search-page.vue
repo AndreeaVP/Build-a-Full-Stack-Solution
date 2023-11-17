@@ -20,7 +20,7 @@
       <div class="user-container">
         <div v-for="user in filteredSearchResults" :key="user.user_id" class="user-card" @click="navigateToUsersPage(user.user_id)">
           <font-awesome-icon :icon="['fas', 'user']" class="user-icon" />
-          <span class="user-name">{{ user.firstname }} {{ user.lastname }}</span>
+          <span class="user-name-search">{{ user.firstname }} {{ user.lastname }}</span>
         </div>
       </div>
     </section>
@@ -224,7 +224,7 @@ export default {
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
-.user-name {
+.user-name-search {
   margin-left: 30px;
 }
 
@@ -266,7 +266,7 @@ export default {
     height: 40px;
   }
 
-  .user-name {
+  .user-name-search {
     margin-left: 10px;
   }
 }
