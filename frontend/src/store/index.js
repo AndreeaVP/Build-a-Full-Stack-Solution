@@ -46,7 +46,6 @@ export default createStore({
         if (response.status === 200) {
           commit('setToken', response.data.token);
           commit('setUser', response.data.user);
-          console.log('User data in login action:', response.data.user);
           return response;
         } else {
           return Promise.reject(response);
@@ -65,5 +64,8 @@ export default createStore({
   getters: {
     getToken: (state) => state.token,
     getUser: (state) => state.user,
+    getUserProfileImage: (state) => {
+      return state.user && state.user.image_url ? state.user.image_url : null;
+    },
   }  
 });
