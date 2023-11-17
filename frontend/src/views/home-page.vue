@@ -20,7 +20,7 @@
         <label for="file-upload" class="file-label"> Upload File
           <font-awesome-icon :icon="['fas', 'upload']" class="icon-post"/>
         </label>
-        <input type="file" id="file-upload" name="image_url" class="file-input" @change="onFileChange" />
+        <input type="file" id="file-upload" name="image_url" class="file-input" ref="fileInput" @change="onFileChange" />
         <button class="post-button" @click="createPost">Post
           <font-awesome-icon :icon="['fas', 'paper-plane']" class="icon-post"/>
         </button>
@@ -166,6 +166,9 @@ export default {
     clearSelectedFile() {
       this.selectedFile = null;
       this.previewUrl = null;
+
+      const input = this.$refs.fileInput;
+      input.value = '';
     },
 
     formatDate(dateTimeString) {
