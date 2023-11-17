@@ -1,12 +1,11 @@
 <template>
   <div class="authentication">
     <div class="auth-container">
-      <div v-if="successMessage" class="success-message">{{ successMessage }}</div>
-      <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
-      
       <div class="auth-form">
 
         <div class="welcome-section">
+          <div v-if="successMessage" class="success-message-authentication">{{ successMessage }}</div>
+          <div v-if="errorMessage" class="error-message-authentication">{{ errorMessage }}</div>
           <img src="@/assets/logo-above.png" alt="Company logo" class="small-logo">
           <h2>Welcome to the Collaborative Hub!</h2>
         </div>
@@ -59,6 +58,25 @@
           <input class="input-field" type="password" id="confirmPassword" v-model="signupData.confirmPassword" placeholder="Confirm Password" @focus="clearPlaceholder('confirmPassword')" required/>
           </div>
 
+          <hr class="authentication-separator">
+
+          <div class="form-field">
+            <div class="profile-image-container">
+              <div class="image-upload-container">
+                <label for="profileImage" class="label-profile-image">Upload Profile Image 
+                  <font-awesome-icon :icon="['fas', 'camera']" class="icon-profile-upload" />
+                </label>
+                <input ref="fileInput" type="file" id="profileImage" name="image_url" class="file-input-profile-image" @change="handleFileChange"/>
+              </div>
+              <div class="profile-image-preview">
+                <img v-if="selectedImage" :src="selectedImage" alt="Preview" class="image-preview" />
+                <button v-if="selectedImage" class="remove-image-button" @click="removeImage">
+                  <font-awesome-icon :icon="['fas', 'times']" class="icon-remove-image" />
+                </button>
+              </div>
+            </div>
+          </div>  
+
           <button @click="signup" class="submit-button">Create Your Account</button>
 
           <p>Already have an account? <a class="toggle-link" @click="toggleForm('login')">Log in</a></p>
@@ -70,7 +88,6 @@
 </template>
 
 <script>
-
 export default {
   components: {
   },
@@ -88,10 +105,13 @@ export default {
         email: '',
         password: '',
         confirmPassword: '',
+        profileImage: null,
+        
       },
 
       errorMessage: '',
       successMessage: '',
+      selectedImage: null,
     };
   },
   methods: {
@@ -115,6 +135,26 @@ export default {
     isValidEmailFormat(email) {
       const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
       return emailPattern.test(email);
+    },
+
+    handleFileChange(event) {
+      const fileInput = event.target;
+      const file = fileInput.files[0];
+      console.log(file);
+
+      if (file) {
+        this.selectedImage = URL.createObjectURL(file);
+        this.signupData.profileImage = file;
+      } else {
+        this.selectedImage = null;
+        this.signupData.profileImage = null;
+      }
+    },
+
+    removeImage() {
+      this.selectedImage = null;
+      const input = this.$refs.fileInput;
+      input.value = '';
     },
 
     async signup() {
@@ -144,24 +184,39 @@ export default {
     }
 
     try {
-      const response = await this.$store.dispatch('signup', this.signupData);
+      const formData = new FormData();
+      if (this.signupData.profileImage) {
+        formData.append('profileImage', this.signupData.profileImage);
+      }      
+      formData.append('firstName', this.signupData.firstName);
+      formData.append('lastName', this.signupData.lastName);
+      formData.append('email', this.signupData.email);
+      formData.append('password', this.signupData.password);
+      formData.append('confirmPassword', this.signupData.confirmPassword);
+      
+      const response = await this.$store.dispatch('signup', formData);
+
       if (response.status === 201) {
         this.successMessage = response.data.message;
-        this.errorMessage = '';  
+        this.errorMessage = ''; 
+        this.selectedImage = '';
+        
+        const signupEmail = this.signupData.email;
 
         this.signupData = {
             firstName: '',
             lastName: '',
-            email: '',
+            email: signupEmail,
             password: '',
             confirmPassword: '',
         };
 
-        this.isLogin = true;
-
         setTimeout(() => {
             this.successMessage = '';
-        }, 1500);
+            this.isLogin = true;
+            this.loginData.email = signupEmail;
+            this.signupData.email = '';
+        }, 1200);
       } else {
         if (response.status === 400) {
             this.errorMessage = response.data.error;
@@ -225,12 +280,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-@media (max-width: 768px) {
-  .auth-container {
-    margin: 0 20px;
-  }
+  overflow: hidden;
 }
 
 .auth-container {
@@ -262,6 +312,11 @@ h2 {
   flex-direction: column;
   align-items: center; 
   text-align: center; 
+}
+
+.signup-form {
+  max-height: 70vh; 
+  overflow-y: auto; 
 }
 
 .page-title { 
@@ -321,18 +376,84 @@ font-size: 23px;
   color: #036194; 
 }
 
-.success-message {
+.success-message-authentication {
   color: white;
   background-color: #55eb5a;
   padding: 8px;
   border-radius: 5px; 
 }
 
-.error-message {
+.error-message-authentication {
   color: white;
   background-color: red;
   padding: 8px;
   border-radius: 5px; 
 }
+
+.authentication-separator {
+  width: 90%;
+  margin-bottom: 20px;
+}
+
+.profile-image-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  border-radius: 5px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  margin: 0 40px;
+}
+
+.label-profile-image { 
+  color: blue;
+  padding: 7px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.file-input-profile-image {
+  width: 50%;
+  display: none;
+}
+
+.icon-profile-upload {
+  display: flex;
+  padding: 5px 7px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  color: blue;
+  align-items: flex-start;
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+.image-preview {
+  max-width: 100%;
+  max-height: 150px;
+  margin: 10px 0 15px 0;
+}
+
+.remove-image-button {
+  position: absolute;
+  top: -10px;
+  right: 30px;
+  background: transparent;
+  border: none;
+  padding: 5px;
+  cursor: pointer;
+}
+
+.icon-remove-image {
+  color: red;
+}
+
+@media (max-width: 768px) {
+  .auth-container {
+    margin: 0 20px;
+  }
+}
+
 
 </style>
