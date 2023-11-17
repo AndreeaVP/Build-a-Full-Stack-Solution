@@ -28,32 +28,32 @@
     </div>
 
     <div class="post-container" v-for="post in posts" :key="post.post_id">
-      <div class="user-section">
-        <font-awesome-icon :icon="['fas', 'user']" class="user-icon" />
-        <div class="user-details">
-          <div class="user-name">{{ post.firstname }} {{ post.lastname }}</div>
-          <div class="post-date">{{ formatDate(post.created_at) }}</div>
+      <div class="post-container-border">
+        <div class="user-section">
+          <font-awesome-icon :icon="['fas', 'user']" class="user-icon" />
+          <div class="user-details">
+            <div class="user-name">{{ post.firstname }} {{ post.lastname }}</div>
+            <div class="post-date">{{ formatDate(post.created_at) }}</div>
+          </div>
         </div>
-      </div>
 
-      <div class="post-options">
-        <div v-if="userData && userData.user_id === post.user_id && post.showOptions" class="edit-option" @click="toggleEditMode(post)">
-          <div class="update-post-content">
-            <font-awesome-icon :icon="['fas', 'pencil-alt']" class="update-post-icon" />
-            <span class="edit-post-text">Edit</span>
+        <div class="post-options">
+          <div v-if="userData && userData.user_id === post.user_id && post.showOptions" @click="toggleEditMode(post)">
+            <div class="update-post-content">
+              <font-awesome-icon :icon="['fas', 'pencil-alt']" class="update-post-icon" />
+              <span class="edit-post-text">Edit</span>
+              </div>
+            </div>
+
+          <div v-if="userData && userData.user_id === post.user_id && post.showOptions" @click="confirmDeletePost(post)">
+            <div class="delete-post-content">
+              <font-awesome-icon :icon="['fas', 'trash']" class="delete-post-icon" />
+              <span class="delete-post-text">Delete</span>
             </div>
           </div>
 
-        <div v-if="userData && userData.user_id === post.user_id && post.showOptions" class="delete-option" @click="confirmDeletePost(post)">
-          <div class="delete-post-content">
-            <font-awesome-icon :icon="['fas', 'trash']" class="delete-post-icon" />
-            <span class="delete-post-text">Delete</span>
-          </div>
+          <font-awesome-icon v-if="userData && userData.user_id === post.user_id" icon="ellipsis-h" class="ellipsis-icon" @click="toggleOptions(post)"/>
         </div>
-
-        <font-awesome-icon v-if="userData && userData.user_id === post.user_id" icon="ellipsis-h" class="ellipsis-icon" @click="toggleOptions(post)"/>
-      </div>
-
       <div>
         <font-awesome-icon v-if="editingPostId === post.post_id" :icon="['fas', 'check']" class="save-post-icon" @click="updatePostText(post)" />
       </div>
@@ -64,9 +64,9 @@
 
       <textarea v-else v-model="newTextualPost" class="update-post-input"></textarea>
 
-      <img v-if="post.image_url" crossorigin="anonymous" :src="post.image_url" alt="Posted Image" class="post-image" />
+      <img v-if="post.image_url" crossorigin="anonymous" :src="post.image_url" alt="Posted Image" class="post-image" /> 
+      </div>
 
-      <!-- Like Section -->
       <div class="like-comment-section">
         <div  class="like-section">
           <div @click="handleLikeAction(post)" class="like-icon" :class="{ 'liked': post.userLiked }">
@@ -76,10 +76,9 @@
           </div>
         </div>
 
-      <!-- Comment Section -->
         <div class="comment-section">
           <div @click="toggleCommentInput(post)" class="comment-icon">
-            <font-awesome-icon :icon="['fas', 'comment']" class="icon" />
+            <font-awesome-icon :icon="['fas', 'comment']"/>
             <span class="comment-count">{{ post.totalComments }}</span>
           </div>
         </div>
@@ -87,7 +86,7 @@
 
         <div class="comment-input" v-if="post.showCommentInput">
           <input type="text" class="comment-input-text" v-model="post.newComment" @keyup.enter="addComment(post)" placeholder="  Add a comment" />
-          <font-awesome-icon @click="addComment(post)" :icon="['fas', 'paper-plane']" class="icon" />
+          <font-awesome-icon @click="addComment(post)" :icon="['fas', 'paper-plane']" class="save-comment" />
         </div>
 
         <div class="post-comments-section">
@@ -257,365 +256,15 @@ export default {
 };
 </script>
 
-<style scoped>
-.create-post {
-  display: flex;
-  flex-direction: column; 
-  justify-content: center; 
-  align-items: center; 
-  padding: 20px 30px;
-  background-color: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 5px;
-  max-width: 50%; 
-  margin: 110px auto 30px auto; 
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-}
+<style lang="scss">
+@import '@/styles/main';
 
 .user-profile {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  margin-bottom: 20px;
-}
-
-.profile-image {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  margin-right: 30px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-}
-
-.user-icon {
-  color: #333;  
-  font-size: 30px;
-  padding: 10px;
-  border-radius: 50%;
-  margin-right: 30px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3); 
-}
-
-.post-input {
-  flex: 1;
-  width: 100%;
-  padding: 10px;
-  height: 50px;
-  border: 1px solid #e0e0e0;
-  border-radius: 10px;
-}
-
-.post-actions {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  gap: 10px;
-}
-
-.file-input {
-  width: 50%;
-}
-
-.file-label {
-  cursor: pointer;  
-  margin-right: 50px;
-  color: rgb(5, 5, 153);
-}
-
-.file-input {
-  display: none;
-}
-
-.post-button {
-  cursor: pointer;
-  margin-left: 50px;
-  color: rgb(70, 70, 72);
-  background-color: white;
-  border: none;
-  color: rgb(5, 5, 153);
-  font-family: Georgia, "Times New Roman", Times, serif, Helvetica, Arial, sans-serif;
-  font-size: 16px;
-}
-
-.icon-post {
-  color: rgb(59, 4, 137);
-  font-size: 13px;
-}
-
-.uploaded-image-container {
-  position: relative;
-}
-
-.uploaded-image {
-  max-width: 100%;
-  max-height: 250px;
-  margin: 10px 0;
-}
-
-.delete-button {
-  position: absolute;
-  top: -2px;
-  right: -10px;
-  background: transparent;
-  border: none;
-  font-size: 20px;
-  font-weight: bold;
-  color: red;
-  cursor: pointer;
-}
-
-.post-container {
-  position: relative;
-  display: flex;
-  flex-direction: column; 
-  justify-content: center; 
-  padding: 20px 30px;
-  background-color: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 5px;
-  max-width: 50%; 
-  margin: 30px auto; 
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-}
-
-.user-section {
-  display: flex;
-  align-items: center;
-}
-
-.user-image {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  margin-right: 10px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-}
-
-.user-details {
-  display: flex;
-  flex-direction: column;
-}
-
-.user-name {
-  font-weight: bold;
-}
-
-.post-date {
-  color: #777;
-  margin-top: 5px;
-}
-
-.post-options {
-  position: absolute;
-  display: flex;
-  gap: 20px;
-  top: 30px;
-  right: 35px;
-}
-
-.update-post-content {
-  display: flex;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.delete-post-content {
-  display: flex;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.update-post-icon {
-  font-size: 15px;
-  margin-bottom: 15px;
-  color: grey;
-  margin-right: 7px;
-}
-
-.delete-post-icon {
-  font-size: 15px;
-  color: red;
-  margin-right: 7px;
-}
-
-.update-post-input {
-  max-width: 100%;
-  margin: 20px 0;
-  height: 50px;
-  border: 1px solid #e0e0e0;
-  border-radius: 10px;
-  padding: 10px;
-}
-
-.save-post-icon {
-  font-size: 24px; 
-  color: rgb(5, 160, 5);
-  cursor: pointer; 
-  padding: 10px;
-  border-radius: 50%;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-}
-
-.post-text {
-  margin: 15px 0;
-  display: flex;
-}
-
-.post-image {
-  max-width: 100%;
-  height: 500px;
-  object-fit: cover;
-}
-
-.like-comment-section {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 10px 0;
-}
-
-.like-section {
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  gap: 30px;
-}
-
-.like-icon {
-  cursor: pointer;
-  color: green;
-}
-.liked {
-  color: blue;
-}
-
-.like-text {
-  margin-left: 5px;
-  font-size: 15px;
-}
-
-.comment-icon {
-  cursor: pointer;
-  color: #333;
-}
-
-.comment-user-icon {
-  color: #333;  
-  font-size: 22px;
-  padding: 10px;
-  border-radius: 50%;
-  margin-right: 30px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3); 
-}
-
-.comment-user-name {
-  font-weight: bold;
-}
-  
-.comment-section {
-  display: flex;
-  align-items: center;
-  padding: 10px;
-}
-
-.comment-input {
-  padding: 10px;
-  margin-bottom: 10px;
-}
-
-.comment-input-text {
-  height: 30px;
-  width: 50%;
-  margin-right: 10px;
-  border-radius: 10px;
-  border: 1px solid rgb(217, 216, 216);
-}
-
-.comment-details-container {
-  display: flex;
-  margin: 0 0 10px 0;
-}
-
-.comment-details {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.comment {
-  display: flex;
-  position: relative;
-  flex-direction: column;
-  padding: 10px;
-  background-color: #f5f5f5;
-  border-radius: 5px;
-  margin-bottom: 5px;
-}
-
-.comment-text {
-  display: flex;
-  align-items: flex-start;
-}
-
-.comment-posted-date {
-  margin-top: 7px;
-  margin-bottom: 0;
-}
-
-.comment-actions {
-  position: absolute;
-  display: flex;
-  top:25px;
-  right: 15px;
-}
-
-.comment-actions-container {
-  display: flex;
-  gap: 20px;
-}
-
-.comment-edit-icon,
-.comment-delete-icon {
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.edit-comment-input {
-  height: 30px;
-  width: 50%;
-  border-radius: 10px;
-  margin-right: 10px;
-  border: 1px solid rgb(217, 216, 216);
-}
-
-.save-edit-comment {
-  color: green;
-}
-
-.success-message {
-  color: white;
-  background-color: #55eb5a;
-  padding: 8px;
-  border-radius: 5px; 
-  position: fixed;
-  top: 70px;
-  left: 0;
-  right: 0;
-  z-index: 1;
-}
-
-.error-message {
-  color: white;
-  background-color: red;
-  padding: 8px;
-  border-radius: 5px; 
-  position: fixed;
-  top: 70px;
-  left: 0;
-  right: 0;
-  z-index: 1;
-}
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 20px;
+  }
 
 @media (max-width: 768px) {
 .create-post {
