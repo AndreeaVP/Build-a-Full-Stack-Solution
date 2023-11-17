@@ -5,7 +5,9 @@ const dotenv = require('dotenv');
 dotenv.config({ path: '../.env' });
 
 exports.signup = (req, res) => {
+    console.log(req.file);
     const { firstName, lastName, email, password } = req.body;
+    const image_url = req.file;
 
     try {
         bcrypt.hash(password, 8, (hashError, hash) => {
@@ -13,14 +15,18 @@ exports.signup = (req, res) => {
                 throw hashError;
             }
 
+            const imageUrl = image_url
+                ? `${req.protocol}://${req.get('host')}/images/${image_url.filename}`
+                : null;
+    
             db.query(
-                'INSERT INTO users (firstName, lastName, email, password) VALUES (?, ?, ?, ?)',
-                [firstName, lastName, email, hash],
+                'INSERT INTO users (firstName, lastName, email, password, image_url) VALUES (?, ?, ?, ?, ?)',
+                [firstName, lastName, email, hash, imageUrl],
                 (err, result) => {
-                    if (err) {
-                        throw err;
-                    }
-                    res.status(201).json({ message: 'User registered successfully' });
+                  if (err) {
+                    throw err;
+                  }
+                  res.status(201).json({ message: 'User registered successfully' });
                 }
             );
         });
