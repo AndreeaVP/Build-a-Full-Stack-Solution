@@ -12,7 +12,7 @@
         <div v-if="successMessage" class="success-message">{{ successMessage }}</div>
         <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
   
-        <div class="user-profile">
+        <div class="users-profile">
           <div class="account-image">
             <font-awesome-icon :icon="['fas', 'user']" class="user-icon" />
           </div>
@@ -27,77 +27,79 @@
         <div v-if="userPosts.length > 0">
 
           <div v-for="post in userPosts" :key="post.post_id" class="post-container">
-            <div class="user-section">
-              <font-awesome-icon :icon="['fas', 'user']" class="user-icon" />
-              <div class="user-details">
-                <div class="user-name">{{ user.firstname }} {{ user.lastname }}</div>
-                <div class="post-date">{{ formatDate(post.created_at) }}</div>
+            <div class="post-container-border">
+              <div class="user-section">
+                <font-awesome-icon :icon="['fas', 'user']" class="user-icon" />
+                <div class="user-details">
+                  <div class="user-name">{{ user.firstname }} {{ user.lastname }}</div>
+                  <div class="post-date">{{ formatDate(post.created_at) }}</div>
+                </div>
               </div>
-            </div>
 
-            <div class="post-text">
-              {{ post.textual_post }}
-            </div>
+              <div class="post-text">
+                {{ post.textual_post }}
+             </div>
 
-            <img v-if="post.image_url" crossorigin="anonymous" :src="post.image_url" alt="Posted Image" class="post-image" />
+              <img v-if="post.image_url" crossorigin="anonymous" :src="post.image_url" alt="Posted Image" class="post-image" />
       
-            <!-- Like and Comment Section -->
-            <div class="like-comment-section">
-              <div class="like-section">
-                <div @click="handleLikeAction(post)" class="like-icon" :class="{ 'liked': post.userLiked }">
-                  <font-awesome-icon :icon="['fas', 'thumbs-up']" class="icon" />
-                  <span class="like-count">{{ post.totalLikes }}</span>
-                  <span v-if="post.userLiked" class="like-text">Liked</span>
+              <!-- Like and Comment Section -->
+              <div class="like-comment-section">
+                <div class="like-section">
+                  <div @click="handleLikeAction(post)" class="like-icon" :class="{ 'liked': post.userLiked }">
+                    <font-awesome-icon :icon="['fas', 'thumbs-up']" class="icon" />
+                    <span class="like-count">{{ post.totalLikes }}</span>
+                    <span v-if="post.userLiked" class="like-text">Liked</span>
+                 </div>
                 </div>
-              </div>
 
-              <div class="comment-section">
-                <div @click="toggleCommentInput(post)" class="comment-icon">
-                  <font-awesome-icon :icon="['fas', 'comment']" class="icon" />
-                  <span class="comment-count">{{ post.totalComments }}</span>
-                </div>
-              </div>
-            </div>   
-
-            <!-- Comment Input -->
-            <div class="comment-input" v-if="post.showCommentInput">
-              <input type="text" class="comment-input-text" v-model="post.newComment" @keyup.enter="addComment(post)" placeholder="  Add a comment" />
-              <font-awesome-icon @click="addComment(post)" :icon="['fas', 'paper-plane']" class="icon" />
-            </div>
-
-            <!-- Comments Section -->
-            <div class="post-comments-section">
-              <div class="comment" v-for="comment in post.comments" :key="comment.comment_id">
-                <div class="comment-details-container">
-                  <font-awesome-icon :icon="['fas', 'user']" class="comment-user-icon" />
-                  <div class="comment-details">
-                    <span class="comment-user-name">{{ comment.firstname }} {{ comment.lastname }}</span>
-                    <p class="comment-posted-date">Posted on {{ formatDate(comment.created_at) }}</p>
+                <div class="comment-section">
+                  <div @click="toggleCommentInput(post)" class="comment-icon">
+                    <font-awesome-icon :icon="['fas', 'comment']" class="icon" />
+                    <span class="comment-count">{{ post.totalComments }}</span>
                   </div>
                 </div>
+              </div>   
 
-                <div class="comment-actions">
-                  <font-awesome-icon v-if="userData && userData.user_id === comment.user_id && !comment.showOptions" icon="ellipsis-h" class="ellipsis-icon" @click="toggleOptionsComment(comment)" />
-                  <div class="comment-actions-container" v-if="comment.showOptions">
-                    <font-awesome-icon v-if="userData && userData.user_id === comment.user_id" :icon="['fas', 'pencil-alt']" class="comment-edit-icon" @click="editComment(comment)" />
-                    <font-awesome-icon v-if="userData && userData.user_id === comment.user_id" :icon="['fas', 'trash']" class="comment-delete-icon" @click="confirmDeleteComment(comment)" />
+              <!-- Comment Input -->
+              <div class="comment-input" v-if="post.showCommentInput">
+                <input type="text" class="comment-input-text" v-model="post.newComment" @keyup.enter="addComment(post)" placeholder="  Add a comment" />
+                <font-awesome-icon @click="addComment(post)" :icon="['fas', 'paper-plane']" class="save-comment" />
+              </div>
+
+              <!-- Comments Section -->
+              <div class="post-comments-section">
+                <div class="comment" v-for="comment in post.comments" :key="comment.comment_id">
+                  <div class="comment-details-container">
+                    <font-awesome-icon :icon="['fas', 'user']" class="comment-user-icon" />
+                    <div class="comment-details">
+                      <span class="comment-user-name">{{ comment.firstname }} {{ comment.lastname }}</span>
+                      <p class="comment-posted-date">Posted on {{ formatDate(comment.created_at) }}</p>
+                    </div>
                   </div>
-                </div>
 
-                <div v-if="editingCommentId === comment.comment_id">
-                  <input type="text" class="edit-comment-input" v-model="editedComment" />
-                  <font-awesome-icon class="save-edit-comment" @click="saveEditedComment(comment)" :icon="['fas', 'check']"/>
-                </div>
+                  <div class="comment-actions">
+                    <font-awesome-icon v-if="userData && userData.user_id === comment.user_id && !comment.showOptions" icon="ellipsis-h" class="ellipsis-icon" @click="toggleOptionsComment(comment)" />
+                    <div class="comment-actions-container" v-if="comment.showOptions">
+                      <font-awesome-icon v-if="userData && userData.user_id === comment.user_id" :icon="['fas', 'pencil-alt']" class="comment-edit-icon" @click="editComment(comment)" />
+                      <font-awesome-icon v-if="userData && userData.user_id === comment.user_id" :icon="['fas', 'trash']" class="comment-delete-icon" @click="confirmDeleteComment(comment)" />
+                    </div>
+                  </div>
 
-                <div class="comment-text">{{ comment.comment }}</div>
+                  <div v-if="editingCommentId === comment.comment_id">
+                    <input type="text" class="edit-comment-input" v-model="editedComment" />
+                    <font-awesome-icon class="save-edit-comment" @click="saveEditedComment(comment)" :icon="['fas', 'check']"/>
+                  </div>
+
+                  <div class="comment-text">{{ comment.comment }}</div>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-      <div v-else>
-       <p>No posts available for this user.</p>
-      </div> 
+        <div v-else>
+          <p>No posts available for this user.</p>
+        </div> 
       </div>
     </div>
 </template>
@@ -287,23 +289,25 @@ export default {
   },
 
   async created() {
-  const user_id = this.$route.params.user_id;
-  if (user_id) {
-    try {
-      this.loading = true;
-      await this.fetchUserDetails(user_id);
-      await this.fetchUserPosts(user_id);
-    } finally {
-      setTimeout(() => {
-        this.loading = false;
-      }, 1300);
+    const user_id = this.$route.params.user_id;
+    if (user_id) {
+      try {
+        this.loading = true;
+        await this.fetchUserDetails(user_id);
+        await this.fetchUserPosts(user_id);
+      } finally {
+        setTimeout(() => {
+          this.loading = false;
+        }, 1300);
+      }
     }
-  }
-},
+  },
 };
 </script>
 
-<style scoped>
+<style lang="scss">
+@import '@/styles/main';
+
 .spinner-container {
   display: flex;
   justify-content: center;
@@ -337,7 +341,7 @@ export default {
   }
 }
 
-.user-profile {
+.users-profile {
   display: flex;
   align-items: center;
   padding: 20px;
@@ -350,230 +354,4 @@ export default {
   background: linear-gradient(120deg,  #ffc4cf,#c6fbcb);
   color: #000;
 }
-
-.account-image {
-margin-left: 40px;
-}
-
-.user-icon {
-  color: #333;  
-  font-size: 40px;
-  padding: 10px;
-  border-radius: 50%;
-  margin-right: 30px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3); 
-}
-
-.profile-info {
-  display: flex;
-  flex-direction: column;
-  margin-right: 20px;
-}
-
-.email {
-  margin-top: 10px;
-}
-
-.post-container {
-  position: relative;
-  display: flex;
-  flex-direction: column; 
-  justify-content: center; 
-  padding: 20px 30px;
-  background-color: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 5px;
-  max-width: 50%; 
-  margin: 30px auto; 
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-}
-
-.user-section {
-  display: flex;
-  align-items: center;
-}
-
-.user-image {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  margin-right: 10px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-}
-
-.user-details {
-  display: flex;
-  flex-direction: column;
-}
-
-.user-name {
-  font-weight: bold;
-}
-
-.post-date {
-  color: #777;
-  margin-top: 5px;
-}
-
-.post-text {
-  margin: 15px 0;
-  display: flex;
-}
-
-.post-image {
-  max-width: 100%;
-  height: 500px;
-  object-fit: cover;
-}
-
-.like-comment-section {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 10px 0;
-}
-
-.like-section {
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  gap: 30px;
-}
-
-.like-icon {
-  cursor: pointer;
-  color: green;
-}
-
-.liked {
-  color: blue;
-}
-
-.like-text {
-  margin-left: 5px;
-  font-size: 15px;
-}
-
-.comment-section {
-  display: flex;
-  align-items: center;
-  padding: 10px;
-}
-
-.comment-icon {
-  cursor: pointer;
-  color: #333;
-}
-
-.comment-input {
-  padding: 10px;
-  margin-bottom: 10px;
-}
-
-.comment-input-text {
-  height: 30px;
-  width: 50%;
-  margin-right: 10px;
-  border-radius: 10px;
-  border: 1px solid rgb(217, 216, 216);
-}
-
-.comment-details-container {
-  display: flex;
-  margin: 0 0 10px 0;
-}
-
-.comment-details {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.comment {
-  display: flex;
-  position: relative;
-  flex-direction: column;
-  padding: 10px;
-  background-color: #f5f5f5;
-  border-radius: 5px;
-  margin-bottom: 5px;
-}
-
-.comment-text {
-  display: flex;
-  align-items: flex-start;
-}
-
-.comment-user-icon {
-  color: #333;  
-  font-size: 22px;
-  padding: 10px;
-  border-radius: 50%;
-  margin-right: 30px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3); 
-}
-
-.comment-user-name {
-  font-weight: bold;
-}
-
-.comment-posted-date {
-  margin-top: 7px;
-  margin-bottom: 0;
-}
-
-.comment-actions {
-  position: absolute;
-  display: flex;
-  top:25px;
-  right: 15px;
-}
-
-.comment-actions-container {
-  display: flex;
-  gap: 20px;
-}
-
-.comment-edit-icon,
-.comment-delete-icon {
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.edit-comment-input {
-  height: 30px;
-  width: 50%;
-  border-radius: 10px;
-  margin-right: 10px;
-  border: 1px solid rgb(217, 216, 216);
-}
-
-.save-edit-comment {
-  color: green;
-}
-
-.success-message {
-  color: white;
-  background-color: #55eb5a;
-  padding: 8px;
-  border-radius: 5px; 
-  position: fixed;
-  top: 70px;
-  left: 0;
-  right: 0;
-  z-index: 1;
-}
-
-.error-message {
-  color: white;
-  background-color: red;
-  padding: 8px;
-  border-radius: 5px; 
-  position: fixed;
-  top: 70px;
-  left: 0;
-  right: 0;
-  z-index: 1;
-}
-
 </style>
