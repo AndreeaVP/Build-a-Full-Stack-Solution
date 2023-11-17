@@ -70,6 +70,11 @@ export async function createPost() {
     try {
       const postId = post.post_id;
       const updatedText = this.newTextualPost;
+
+      if (!updatedText.trim()) {
+        this.errorMessage = 'Post text cannot be empty.';
+        return;
+      }
       const token = localStorage.getItem('token');
 
       const response = await axios.put(`/api/posts/${postId}`, {
@@ -243,6 +248,15 @@ export async function createPost() {
       const headers = {
         Authorization: `Bearer ${token}`,
       };
+
+      if (!this.editedComment) {
+        this.errorMessage = 'Comment text cannot be empty.';
+        setTimeout(() => {
+          this.errorMessage = '';
+        }, 1500);
+        return;
+      }
+  
   
       const response = await axios.put(`/api/comments/${comment.comment_id}`, {
         commentId: comment.comment_id,
