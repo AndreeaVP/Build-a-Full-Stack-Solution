@@ -7,7 +7,8 @@
 
     <div class="create-post">
       <div class="user-profile">
-        <font-awesome-icon :icon="['fas', 'user']" class="user-icon" />
+        <img v-if="userProfileImage" crossorigin="anonymous" :src="userProfileImage" alt="Profile Image" class="profile-image" />
+        <font-awesome-icon v-else :icon="['fas', 'user']" class="user-icon" />
         <textarea class="post-input" placeholder="What's on your mind?" v-model="postContent"></textarea>
       </div>
 
@@ -30,7 +31,8 @@
     <div class="post-container" v-for="post in posts" :key="post.post_id">
       <div class="post-container-border">
         <div class="user-section">
-          <font-awesome-icon :icon="['fas', 'user']" class="user-icon" />
+          <img v-if="post.user && post.user_image" crossorigin="anonymous" :src="post.user_image" alt="User Profile Image" class="profile-image-display-post" />
+          <font-awesome-icon v-else :icon="['fas', 'user']" class="user-icon"/>
           <div class="user-details">
             <div class="user-name">{{ post.firstname }} {{ post.lastname }}</div>
             <div class="post-date">{{ formatDate(post.created_at) }}</div>
@@ -92,7 +94,8 @@
         <div class="post-comments-section">
           <div class="comment" v-for="comment in post.comments" :key="comment.comment_id">
             <div class="comment-details-container">
-              <font-awesome-icon :icon="['fas', 'user']" class="comment-user-icon" />
+              <img v-if="comment.user && comment.user.image_url" crossorigin="anonymous" :src="comment.user.image_url" alt="User Profile Image" class="comment-user-image" />
+              <font-awesome-icon v-else :icon="['fas', 'user']" class="comment-user-icon" />
               <div class="comment-details">
                 <span class="comment-user-name">{{ comment.firstname }} {{ comment.lastname }}</span>
                 <p class="comment-posted-date">Posted on {{ formatDate(comment.created_at) }}</p>
@@ -140,7 +143,10 @@ export default {
       return userDataFromLocalStorage;
     }
     return null;
-  },
+    },
+    userProfileImage() {
+      return this.$store.getters.getUserProfileImage;
+    },
   },
   data() {
     return {
@@ -267,6 +273,96 @@ export default {
     align-items: center;
     width: 100%;
     margin-bottom: 20px;
+  }
+
+    
+  .profile-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin-right: 30px;
+    object-fit: cover;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .create-post {
+    display: flex;
+    flex-direction: column; 
+    justify-content: center; 
+    align-items: center; 
+    padding: 20px 30px;
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    max-width: 50%; 
+    margin: 110px auto 30px auto; 
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  }
+  
+  .post-input {
+    flex: 1;
+    width: 100%;
+    padding: 10px;
+    height: 50px;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+  }
+
+  .uploaded-image-container {
+    position: relative;
+  }
+  
+  .uploaded-image {
+    max-width: 100%;
+    max-height: 250px;
+    margin: 10px 0;
+  }
+  
+  .delete-button {
+    position: absolute;
+    top: -2px;
+    right: -10px;
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    font-weight: bold;
+    color: red;
+    cursor: pointer;
+  }
+
+  .post-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    gap: 10px;
+  }
+
+  .file-label {
+    cursor: pointer;  
+    margin-right: 50px;
+    color: rgb(5, 5, 153);
+  }
+
+  .file-input {
+    width: 50%;
+    display: none;
+  }
+
+  .post-button {
+    cursor: pointer;
+    margin-left: 50px;
+    color: rgb(70, 70, 72);
+    background-color: white;
+    border: none;
+    color: rgb(5, 5, 153);
+    font-family: Georgia, "Times New Roman", Times, serif, Helvetica, Arial, sans-serif;
+    font-size: 16px;
+  }
+  
+  .icon-post {
+    color: rgb(59, 4, 137);
+    font-size: 13px;
   }
 
 @media (max-width: 768px) {
