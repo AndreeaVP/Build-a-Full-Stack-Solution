@@ -14,7 +14,8 @@
 
       <div class="user-myprofile">
         <div class="account-image">
-          <font-awesome-icon :icon="['fas', 'user']" class="user-icon" />
+          <img v-if="user.image_url" crossorigin="anonymous" :src="user.image_url" alt="User Profile Image" class="user-profile-image" />
+          <font-awesome-icon v-else :icon="['fas', 'user']" class="user-icon"/>
         </div>
 
         <div class="profile-info">
@@ -68,7 +69,8 @@
         <div v-for="post in userPosts" :key="post.post_id" class="post-container">
           <div class="post-container-border">
             <div class="user-section">
-              <font-awesome-icon :icon="['fas', 'user']" class="user-icon" />
+              <img v-if="post.user && post.user.image_url" crossorigin="anonymous" :src="post.user.image_url" alt="User Profile Image" class="profile-image-display-post" />
+              <font-awesome-icon v-else :icon="['fas', 'user']" class="user-icon"/>
               <div class="user-details">
                 <div class="user-name">{{ user.firstname }} {{ user.lastname }}</div>
                 <div class="post-date">{{ formatDate(post.created_at) }}</div>
@@ -132,18 +134,18 @@
             <div class="post-comments-section">
               <div class="comment" v-for="comment in post.comments" :key="comment.comment_id">
                 <div class="comment-details-container">
-                  <font-awesome-icon :icon="['fas', 'user']" class="comment-user-icon" />
-                  <div class="comment-details">
+                  <img v-if="comment.user && comment.user.image_url" crossorigin="anonymous" :src="comment.user.image_url" alt="User Profile Image" class="comment-user-image" />
+                  <font-awesome-icon v-else :icon="['fas', 'user']" class="comment-user-icon" />                  <div class="comment-details">
                     <span class="comment-user-name">{{ comment.firstname }} {{ comment.lastname }}</span>
                     <p class="comment-posted-date">Posted on {{ formatDate(comment.created_at) }}</p>
                   </div>
                 </div>
 
                 <div class="comment-actions">
-                  <font-awesome-icon v-if="!comment.showOptions" icon="ellipsis-h" class="ellipsis-icon" @click="toggleOptionsComment(comment)" />
+                  <font-awesome-icon v-if="isCurrentUserComment(comment) && !comment.showOptions" icon="ellipsis-h" class="ellipsis-icon" @click="toggleOptionsComment(comment)" />
                   <div class="comment-actions-container" v-if="comment.showOptions">
-                    <font-awesome-icon :icon="['fas', 'pencil-alt']" class="comment-edit-icon" @click="editComment(comment)" />
-                    <font-awesome-icon :icon="['fas', 'trash']" class="comment-delete-icon" @click="confirmDeleteComment(comment)" />
+                    <font-awesome-icon v-if="isCurrentUserComment(comment)" :icon="['fas', 'pencil-alt']" class="comment-edit-icon" @click="editComment(comment)" />
+                    <font-awesome-icon v-if="isCurrentUserComment(comment)" :icon="['fas', 'trash']" class="comment-delete-icon" @click="confirmDeleteComment(comment)" />
                   </div>
                 </div>
 
@@ -236,7 +238,8 @@ export default {
             this.userPosts = response.data.posts.map(post => ({
               ...post,
               comments: [], 
-              likes: 0,  
+              likes: 0, 
+              user: { image_url: post.user_image,}, 
             }));
 
             await Promise.all(this.userPosts.map(async post => {
@@ -337,7 +340,60 @@ export default {
         console.error('Error deleting user account:', error);
       }
     },
+
+    async confirmDeleteComment(comment) {
+    const confirmed = window.confirm("Are you sure you want to delete this comment?");
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const userId = this.$store.state.user.user_id;
+      const commentId = comment.comment_id;
+
+      const response = await axios.delete(`/api/comments/${commentId}`, {
+        data: {
+          userId,
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status === 200) {
+        const postContainingComment = this.userPosts.find(post =>
+          post.comments && post.comments.some(c => c.comment_id === comment.comment_id)
+        );
+
+        if (postContainingComment) {
+          postContainingComment.comments = postContainingComment.comments.filter(
+            c => c.comment_id !== comment.comment_id
+          );
+        } else {
+          console.error('Post containing comment not found:', comment);
+        }
+        this.successMessage = 'Comment deleted successfully';
+        this.errorMessage = '';
+        await this.fetchComments(postContainingComment);
+        setTimeout(() => {
+          this.successMessage = '';
+        }, 1500);
+      } else {
+        console.error('Error deleting comment:', response);
+        this.errorMessage = 'Failed to delete comment. Please try again.';
+      }
+    } catch (error) {
+      console.error('Error deleting comment:', error);
+      this.errorMessage = 'An error occurred while deleting the comment. Please try again.';
+    }
   },
+
+  isCurrentUserComment(comment) {
+    return comment.user_id === this.$store.state.user.user_id;
+  },
+},
 
   async created() {
     this.loading = true;
