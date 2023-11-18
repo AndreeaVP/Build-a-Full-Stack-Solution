@@ -14,7 +14,8 @@
   
         <div class="users-profile">
           <div class="account-image">
-            <font-awesome-icon :icon="['fas', 'user']" class="user-icon" />
+            <img v-if="user.image_url" crossorigin="anonymous" :src="user.image_url" alt="User Profile Image" class="user-profile-image" />
+            <font-awesome-icon v-else :icon="['fas', 'user']" class="user-icon"/>
           </div>
   
           <div class="profile-info">
@@ -29,7 +30,8 @@
           <div v-for="post in userPosts" :key="post.post_id" class="post-container">
             <div class="post-container-border">
               <div class="user-section">
-                <font-awesome-icon :icon="['fas', 'user']" class="user-icon" />
+                <img v-if="post.user_image" crossorigin="anonymous" :src="post.user_image" alt="User Profile Image" class="profile-image-display-post" />
+                <font-awesome-icon v-else :icon="['fas', 'user']" class="user-icon"/>
                 <div class="user-details">
                   <div class="user-name">{{ user.firstname }} {{ user.lastname }}</div>
                   <div class="post-date">{{ formatDate(post.created_at) }}</div>
@@ -70,8 +72,8 @@
               <div class="post-comments-section">
                 <div class="comment" v-for="comment in post.comments" :key="comment.comment_id">
                   <div class="comment-details-container">
-                    <font-awesome-icon :icon="['fas', 'user']" class="comment-user-icon" />
-                    <div class="comment-details">
+                    <img v-if="comment.user && comment.user.image_url" crossorigin="anonymous" :src="comment.user.image_url" alt="User Profile Image" class="comment-user-image" />
+                    <font-awesome-icon v-else :icon="['fas', 'user']" class="comment-user-icon" />                    <div class="comment-details">
                       <span class="comment-user-name">{{ comment.firstname }} {{ comment.lastname }}</span>
                       <p class="comment-posted-date">Posted on {{ formatDate(comment.created_at) }}</p>
                     </div>
@@ -163,7 +165,6 @@ export default {
         };
 
         const response = await axios.get(`/api/user/${userId}`, config);
-        console.log('User Details Response:', response);
         this.user = response.data.user;
       } catch (error) {
         console.error('Error fetching user details:', error);
@@ -186,17 +187,16 @@ export default {
 
         const response = await axios.get(`/api/posts/${userId}`, config);
 
-        console.log('Response from server:', response);
-
         if (response.status === 200) {
           if (response.data.posts.length > 0) {
-        this.userPosts = response.data.posts.map(post => ({
-          ...post,
-          comments: [], 
-          likes: 0,  
-        }));
+            this.userPosts = response.data.posts.map(post => ({
+            ...post,
+            comments: [], 
+            likes: 0,  
+            user_image: post.user_image,
+          }));
 
-        await Promise.all(this.userPosts.map(async post => {
+          await Promise.all(this.userPosts.map(async post => {
           await this.fetchComments(post);
           await this.fetchLikes(post);
         }));
@@ -289,19 +289,19 @@ export default {
   },
 
   async created() {
-    const user_id = this.$route.params.user_id;
-    if (user_id) {
-      try {
-        this.loading = true;
-        await this.fetchUserDetails(user_id);
-        await this.fetchUserPosts(user_id);
-      } finally {
-        setTimeout(() => {
-          this.loading = false;
-        }, 1300);
-      }
+  const user_id = this.$route.params.user_id;
+  if (user_id) {
+    try {
+      this.loading = true;
+      await Promise.all([
+        this.fetchUserDetails(user_id),
+        this.fetchUserPosts(user_id),
+      ]);
+    } finally {
+      this.loading = false;
     }
-  },
+  }
+}
 };
 </script>
 
