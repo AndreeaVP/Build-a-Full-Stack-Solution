@@ -51,10 +51,9 @@ export async function createPost() {
       };
 
       const response = await axios.get('/api/posts', { headers });
-
       if (response.status === 200) {
         this.posts = response.data.posts
-        .map(post => ({ ...post, comments: [], likes: 0 }))
+        .map(post => ({ ...post, comments: [], likes: 0, user: { image_url: post.user_image,}, }))
         .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
       } else {
           console.error('Failed to fetch posts. Please try again.');
@@ -218,8 +217,15 @@ export async function createPost() {
       const response = await axios.get(`/api/comments/${postId}`, { headers });
 
       if (response.status === 200) {
-        post.comments = response.data.comments;
-        post.totalComments = response.data.comments.length;
+        const comments = response.data.comments.map(comment => ({
+          ...comment,
+          user: {
+            image_url: comment.image_url,
+          },
+        }));
+  
+        post.comments = comments;
+        post.totalComments = comments.length;
       } else {
         console.error('Error fetching comments:', response.status);
         this.errorMessage = 'Failed to fetch comments. Please try again.';
