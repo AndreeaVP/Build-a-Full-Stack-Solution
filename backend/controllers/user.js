@@ -23,7 +23,7 @@ exports.getUserById = (req, res) => {
         return res.status(404).json({ error: 'User not found' });
       }
       const user = results[0];
-      res.status(200).json({ user });
+      res.status(200).json({ user: { ...user, image_url: user.image_url } });
     });
   };
   
