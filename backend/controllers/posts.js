@@ -25,7 +25,7 @@ exports.createPost = (req, res) => {
 
 exports.getAllPosts = (req, res) => {
   const query = `
-    SELECT p.*, u.firstname, u.lastname
+    SELECT p.*, u.firstname, u.lastname, u.image_url as user_image
     FROM posts p
     JOIN users u ON p.user_id = u.user_id
   `;
@@ -41,17 +41,22 @@ exports.getAllPosts = (req, res) => {
 exports.getPostsByUserId = (req, res) => {
   const userId = req.params.userId;
     
-  db.query('SELECT * FROM posts WHERE user_id = ?', [userId], (err, results) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
+  db.query(
+    'SELECT p.*, u.image_url AS user_image FROM posts p JOIN users u ON p.user_id = u.user_id WHERE p.user_id = ?',
+    [userId],
+    (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+
       if (results.length === 0) {
         return res.status(200).json({ posts: [] });
       }
+
       res.status(200).json({ posts: results });
-    });
-  };
-    
+    }
+  );
+  };  
 
 exports.updatePost = (req, res) => {
     const postId = req.params.postId;
