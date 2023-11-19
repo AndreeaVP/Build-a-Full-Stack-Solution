@@ -5,7 +5,7 @@
     <div v-if="successMessage" class="success-message">{{ successMessage }}</div>
     <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
 
-    <section id="search">
+    <section id="search" class="search">
       <h1 class="page-title">Search</h1>
       <form @submit.prevent="search" class="search-form">
         <div class="input-container">
@@ -19,7 +19,10 @@
     <section id="search-results">
       <div class="user-container">
         <div v-for="user in filteredSearchResults" :key="user.user_id" class="user-card" @click="navigateToUsersPage(user.user_id)">
-          <font-awesome-icon :icon="['fas', 'user']" class="user-icon" />
+          <div class="user-image-container">
+            <img v-if="user.image_url" crossorigin="anonymous" :src="user.image_url" alt="User Profile" class="user-image-search" />
+            <font-awesome-icon v-else :icon="['fas', 'user']" class="user-icon" />
+          </div>
           <span class="user-name-search">{{ user.firstname }} {{ user.lastname }}</span>
         </div>
       </div>
@@ -142,7 +145,7 @@ export default {
 
 <style scoped>
 
-#search {
+.search {
   margin-top: 110px;
 }
 .search-form {
@@ -196,7 +199,7 @@ export default {
   align-items: center;
   border: 1px solid rgba(0, 0, 0, 0);
   justify-content: flex-start;;
-  padding: 15px;
+  padding: 10px;
   border-radius: 5px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
   transition: box-shadow 0.3s ease-in-out, border 0.3s ease-in-out;
@@ -205,6 +208,10 @@ export default {
 .user-card:hover {
   box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.1);
   border: 1px solid #e0e0e0;
+}
+
+.user-image-container {
+  display: flex;
 }
 
 .user-icon {
@@ -216,8 +223,9 @@ export default {
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3); 
 }
 
-.user-image {
+.user-image-search {
   width: 50px;
+  object-fit: cover;
   margin-left: 20px;
   height: 50px;
   border-radius: 50%;
@@ -252,15 +260,15 @@ export default {
   z-index: 1;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1100px) and (min-width: 769px) {
   .user-card {
-    width: calc(25% - 10px);
+    width: calc(40% - 10px);
     margin-left: 5px; 
     margin-right: 5px; 
     height: 30px;
   }
 
-  .user-image {
+  .user-image-search {
     width: 40px;
     margin-left: 0;
     height: 40px;
@@ -272,7 +280,7 @@ export default {
 }
 
 @media (max-width: 768px) {
-#search {
+.search {
   margin-top: 80px;
 }
 
@@ -296,6 +304,11 @@ export default {
 
 .user-icon {
   font-size: 25px;
+}
+
+.user-image-search {
+  width: 40px;
+  height: 40px;
 }
 }
 
