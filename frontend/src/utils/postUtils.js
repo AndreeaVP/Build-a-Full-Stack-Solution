@@ -10,6 +10,15 @@ export async function createPost() {
 
       const user_id = user.user_id;
       const token = this.$store.state.token;
+
+      if (!this.postContent && !this.selectedFile) {
+        this.errorMessage = "Post content cannot be empty.";
+        setTimeout(() => {
+          this.errorMessage = '';
+        }, 1500);
+        return;
+      } 
+      
       const formData = new FormData();
       formData.append("user_id", user_id);
       formData.append('textual_post', this.postContent);
