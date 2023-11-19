@@ -466,12 +466,12 @@ export default {
   position: relative;
   display: flex;
   align-items: center;
-  padding: 20px;
+  padding: 10px 20px;
   background-color: #fff;
   border: 1px solid #e0e0e0;
   border-radius: 5px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-  max-width: 50%;
+  max-width: 60%;
   margin: 110px auto 30px auto;
   background: linear-gradient(180deg,  rgb(169, 181, 251),#fbedc6);
   color: #000;
@@ -549,14 +549,27 @@ export default {
   border: 1px solid #eb0db3;
 }
 
+@media (max-width: 1200px) and (min-width: 1001px) {
+  .user-myprofile {
+     max-width: 80%;
+  }
+} 
+
+@media (max-width: 1000px) and (min-width: 769px) {
+  .user-myprofile {
+    max-width: 85%;
+  }
+}
+
 @media (max-width: 768px) {
-  .user-profile {
+  .user-myprofile {
+    max-width: 100%;
     margin-top: 80px;
   }
 
   .user-icon {
   font-size: 25px;
-}
+  }
 }
 
 </style>
