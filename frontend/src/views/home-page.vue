@@ -18,11 +18,11 @@
       </div>
 
       <div class="post-actions">       
-        <label for="file-upload" class="file-label"> Upload File
-          <font-awesome-icon :icon="['fas', 'upload']" class="icon-post"/>
+        <label for="file-upload" class="file-label"> Upload Image
+          <font-awesome-icon :icon="['fas', 'image']" class="icon-post"/>
         </label>
         <input type="file" id="file-upload" name="image_url" class="file-input" ref="fileInput" @change="onFileChange" />
-        <button class="post-button" @click="createPost">Post
+        <button class="post-button" @click="createPost"> Create Post
           <font-awesome-icon :icon="['fas', 'paper-plane']" class="icon-post"/>
         </button>
       </div>
@@ -274,8 +274,7 @@ export default {
     width: 100%;
     margin-bottom: 20px;
   }
-
-    
+   
   .profile-image {
     width: 60px;
     height: 60px;
@@ -294,7 +293,7 @@ export default {
     background-color: #fff;
     border: 1px solid #e0e0e0;
     border-radius: 5px;
-    max-width: 50%; 
+    max-width: 60%; 
     margin: 110px auto 30px auto; 
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
   }
@@ -330,6 +329,20 @@ export default {
     cursor: pointer;
   }
 
+  .post-container {
+    position: relative;
+    display: flex;
+    flex-direction: column; 
+    justify-content: center; 
+    padding: 20px 25px;
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    max-width: 50%; 
+    margin: 30px auto; 
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  }
+
   .post-actions {
     display: flex;
     align-items: center;
@@ -340,7 +353,6 @@ export default {
 
   .file-label {
     cursor: pointer;  
-    margin-right: 50px;
     color: rgb(5, 5, 153);
   }
 
@@ -351,7 +363,7 @@ export default {
 
   .post-button {
     cursor: pointer;
-    margin-left: 50px;
+    margin-left: 100px;
     color: rgb(70, 70, 72);
     background-color: white;
     border: none;
@@ -362,8 +374,38 @@ export default {
   
   .icon-post {
     color: rgb(59, 4, 137);
-    font-size: 13px;
+    font-size: 16px;
+    margin-left: 5px;
   }
+
+@media (max-width: 1200px) and (min-width: 1001px) {
+  .create-post {
+  max-width: 80%;
+}
+
+.post-container {
+  max-width: 70%;
+  }  
+  
+.post-image {
+  height: 400px!important;
+}  
+}
+
+
+@media (max-width: 1000px) and (min-width: 769px) {
+.create-post {
+  max-width: 80%;
+}
+
+.post-container {
+  max-width: 75%;
+} 
+  
+.post-image {
+  height: 350px!important;
+}  
+}
 
 @media (max-width: 768px) {
 .create-post {
@@ -372,12 +414,17 @@ export default {
   max-width: 100%;
 }
 
+.user-profile {
+  margin-top: 10px!important;
+}
+
 .file-label {
   font-size: 15px;
 }
 
 .post-button {
   font-size: 15px;
+  margin-left: 40px;
 }
 
 .profile-image {
@@ -417,7 +464,7 @@ export default {
 }
 
 .post-image {
-  height: 350px;
+  height: 300px!important;
 }
 
 .update-post-icon,
