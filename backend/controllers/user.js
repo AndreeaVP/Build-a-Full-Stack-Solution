@@ -43,9 +43,20 @@ exports.updateUser = (req, res) => {
         updateFields.email = email;
     }
     if (password) {
+      const currentHashedPassword = req.body.password;
+
+      console.log('request body password', req.body.password)
+    
+      // Compare the hashed version of the current password with the new one
+      if (bcrypt.compareSync(password, currentHashedPassword)) {
+        return res.status(400).json({ error: 'New password must be different from the current password' });
+      }
+    
+      // Hash the new password before updating
       const hashedPassword = bcrypt.hashSync(password, 8);
       updateFields.password = hashedPassword;
-  }
+    }
+    
     if (image_url) {
         updateFields.image_url = image_url;
     }
