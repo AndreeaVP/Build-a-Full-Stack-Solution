@@ -2,6 +2,12 @@ const db = require('../config/database');
 const fs = require('fs');
 
 exports.createPost = (req, res) => {
+  const { user_id, textual_post } = req.body;
+
+  if (!textual_post && !req.file) {
+    return res.status(400).json({ error: 'Post content cannot be empty' });
+  }
+
   const body = req.file
     ? {
         ...req.body,
@@ -9,7 +15,7 @@ exports.createPost = (req, res) => {
       }
     : { ...req.body, image_url: null };
 
-  const { user_id, textual_post, image_url } = body;
+  const { image_url } = body;
 
   db.query(
     'INSERT INTO posts (user_id, textual_post, image_url) VALUES (?, ?, ?)',
