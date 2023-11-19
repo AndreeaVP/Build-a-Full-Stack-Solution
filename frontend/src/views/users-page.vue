@@ -344,14 +344,33 @@ export default {
 .users-profile {
   display: flex;
   align-items: center;
-  padding: 20px;
+  padding: 10px 20px;
   background-color: #fff;
   border: 1px solid #e0e0e0;
   border-radius: 5px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-  max-width: 50%;
+  max-width: 60%;
   margin: 110px auto 30px auto;
   background: linear-gradient(120deg,  #ffc4cf,#c6fbcb);
   color: #000;
 }
+
+@media (max-width: 1200px) and (min-width: 1001px) {
+      .users-profile {
+        max-width: 80%;
+      }
+    } 
+
+@media (max-width: 1000px) and (min-width: 769px) {
+  .users-profile {
+    max-width: 85%;
+  }
+}
+
+@media (max-width: 768px) {
+  .users-profile {
+    margin-top: 80px;
+    max-width: 100%;
+  }
+}    
 </style>
