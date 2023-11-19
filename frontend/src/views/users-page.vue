@@ -289,19 +289,21 @@ export default {
   },
 
   async created() {
-  const user_id = this.$route.params.user_id;
-  if (user_id) {
-    try {
-      this.loading = true;
-      await Promise.all([
+    const user_id = this.$route.params.user_id;
+    if (user_id) {
+      try {
+        this.loading = true;
+        await Promise.all([
         this.fetchUserDetails(user_id),
         this.fetchUserPosts(user_id),
-      ]);
-    } finally {
-      this.loading = false;
+        ]);
+        } finally {
+          setTimeout(() => {
+          this.loading = false;
+          }, 1300);
+      }
     }
   }
-}
 };
 </script>
 
