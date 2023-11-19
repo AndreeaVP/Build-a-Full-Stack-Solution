@@ -131,10 +131,15 @@ export default {
   font-size: 15px;
 }
 
-@media screen and (max-width: 767px) {
+@media (max-width: 1000px) and (min-width: 769px) {
+  .app-header {
+    height: 6vh;
+  }
+}
+
+@media screen and (max-width: 768px) {
   .app-header {
     height: 5vh;
-    padding: 10px;
   }
 
   .logo {
