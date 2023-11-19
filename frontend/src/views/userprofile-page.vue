@@ -31,35 +31,52 @@
             <font-awesome-icon :icon="['fas', 'times']" class="icon-close" @click="closeSettings" />
           </div>
 
-          <div class="profile-image-section">
-            <h3>{{ user.image_url ? 'Update Image' : 'Upload an Image' }}</h3>
-            <img :src="user.image_url" alt="Profile Image">
-            <div class="change-image-button">
-              <button>{{ user.image_url ? 'Change Your Image' : 'Upload an Image' }}</button>
-            </div>
-          </div>
-
-          <hr class="separator">
-        
-          <div class="change-password-section">
-            <h3>Change Password</h3>
-            <div class="new-password-container">
-              <label for="newPassword">Your New Password</label>
-              <input type="password" id="newPassword" v-model="newPassword">
-            </div>
-            <div class="submit-button-container">
-              <button @click="changePassword">Submit</button>
-            </div>
+          <!-- Navigation Menu -->
+          <div class="settings-navigation">
+            <div @click="showSection('profile')" class="menu-item" :class="{ active: activeSection === 'profile' }">Profile Details</div>
+            <div @click="showSection('password')" class="menu-item" :class="{ active: activeSection === 'password' }">Change Password</div>
+            <div @click="showSection('delete')" class="menu-item" :class="{ active: activeSection === 'delete' }">Delete Account</div>
           </div>
 
           <hr class="separator">
 
-          <div class="delete-account-section">
-            <h3>Delete Account</h3>
-            <div class="delete-button-container">
-              <button @click="deleteAccount">Delete Account</button>
+          <!-- Profile Details Section -->
+          <div v-if="activeSection === 'profile'" class="profile-details-section">
+            <div class="profile-image-section">
+              <h3>{{ user.image_url ? 'Update Image' : 'Upload an Image' }}</h3>
+              <img crossorigin="anonymous" :src="user.image_url" alt="Profile Image" class="update-profile-image">
+              <div class="change-image-button">
+                <button>{{ user.image_url ? 'Change Your Image' : 'Upload an Image' }}</button>
+              </div>
             </div>
           </div>
+
+          <!-- Change Password Section -->
+          <div v-if="activeSection === 'password'" class="change-password-section">
+            <div class="change-password-section">
+              <h3>Change Password</h3>
+              <div class="new-password-container">
+                <label for="newPassword">Your New Password</label>
+                <input type="password" id="newPassword" v-model="newPassword">
+              </div>
+              <div class="submit-button-container">
+                <button @click="changePassword">Submit</button>
+              </div>
+            </div>  
+          </div>          
+
+          <!-- Delete Account Section -->
+          <div v-if="activeSection === 'delete'" class="delete-account-section">
+            <div class="delete-account-section">
+              <h3>Delete Account</h3>
+              <div class="delete-button-container">
+                <button @click="deleteAccount">Delete Account</button>
+              </div>
+            </div>
+          </div>
+
+          <hr class="separator">
+
         </div>
       </div>  
 
@@ -193,6 +210,7 @@ export default {
       editingPostId: null,
       editingCommentId: null,
       editedComment: "",
+      activeSection: 'profile',
     };
   },
   methods: {
@@ -203,6 +221,10 @@ export default {
     closeSettings() {
       this.showSettings = false;
     },
+
+    showSection(section) {
+    this.activeSection = section;
+  },
 
     changeProfileImage() {
       // change the profile image
@@ -341,7 +363,7 @@ export default {
       }
     },
 
-    async confirmDeleteComment(comment) {
+  async confirmDeleteComment(comment) {
     const confirmed = window.confirm("Are you sure you want to delete this comment?");
 
     if (!confirmed) {
@@ -479,6 +501,7 @@ export default {
 
 .icon-settings {
   margin-left: auto;
+  cursor: pointer;
 }
 
 .settings-container {
@@ -500,10 +523,17 @@ export default {
 
 .close-button-container {
   color: black;
+  margin-bottom: 10px;
 }
 
 .profile-image-section {
   text-align: center;
+}
+
+.update-profile-image {
+  max-width: 100%;
+  max-height: 150px;
+  margin: 10px 0 15px 0;
 }
 
 .settings-container button {
@@ -547,6 +577,30 @@ export default {
 .separator {
   width: 90%;
   border: 1px solid #eb0db3;
+}
+
+.settings-navigation {
+  display: flex;
+  justify-content: space-around;
+  background-color: #f0f0f0;
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+}
+
+.menu-item {
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.menu-item:hover {
+  background-color: #ddd;
+}
+
+.menu-item.active {
+  background-color: #4CAF50;
+  color: white;
 }
 
 @media (max-width: 1200px) and (min-width: 1001px) {
