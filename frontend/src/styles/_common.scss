@@ -23,12 +23,21 @@
   }
 
   .user-icon {
-    color: #333;
+    color: white;
+    background-color: black;
+    font-size: 35px;
+    padding: 10px;
+    border-radius: 50%;
+    margin-right: 30px;
+  }
+
+  .user-icon-posts {
+    color: white;
+    background-color: black;
     font-size: 30px;
     padding: 10px;
     border-radius: 50%;
     margin-right: 30px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
   }
 
   .post-container-border {
@@ -218,12 +227,12 @@
   }
 
   .comment-user-icon {
-    color: #333;  
+    color: white;  
+    background-color: black;
     font-size: 20px;
     padding: 10px;
     border-radius: 50%;
     margin-right: 30px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3); 
   }
 
   .comment-details {
