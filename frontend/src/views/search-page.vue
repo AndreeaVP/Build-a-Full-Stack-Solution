@@ -21,7 +21,7 @@
         <div v-for="user in filteredSearchResults" :key="user.user_id" class="user-card" @click="navigateToUsersPage(user.user_id)">
           <div class="user-image-container">
             <img v-if="user.image_url" crossorigin="anonymous" :src="user.image_url" alt="User Profile" class="user-image-search" />
-            <font-awesome-icon v-else :icon="['fas', 'user']" class="user-icon" />
+            <font-awesome-icon v-else :icon="['fas', 'user']" class="user-icon-search-page" />
           </div>
           <span class="user-name-search">{{ user.firstname }} {{ user.lastname }}</span>
         </div>
@@ -214,13 +214,13 @@ export default {
   display: flex;
 }
 
-.user-icon {
-  color: #333;  
+.user-icon-search-page {
+  color: white;  
+  background-color: black;
   font-size: 30px;
   padding: 10px;
   border-radius: 50%;
   margin-right: 30px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3); 
 }
 
 .user-image-search {
@@ -302,7 +302,7 @@ export default {
   margin-right: 5px;
 }
 
-.user-icon {
+.user-icon-search-page {
   font-size: 25px;
 }
 
