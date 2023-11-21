@@ -32,7 +32,7 @@
       <div class="post-container-border">
         <div class="user-section">
           <img v-if="post.user && post.user_image" crossorigin="anonymous" :src="post.user_image" alt="User Profile Image" class="profile-image-display-post" />
-          <font-awesome-icon v-else :icon="['fas', 'user']" class="user-icon"/>
+          <font-awesome-icon v-else :icon="['fas', 'user']" class="user-icon-posts"/>
           <div class="user-details">
             <div class="user-name">{{ post.firstname }} {{ post.lastname }}</div>
             <div class="post-date">{{ formatDate(post.created_at) }}</div>
@@ -434,7 +434,7 @@ export default {
 }
 
 .user-icon {
-  font-size: 25px;
+  font-size: 25px!important;
 }
 
 .like-comment-section {
@@ -478,8 +478,8 @@ export default {
 }
 
 .comment-user-icon {
-  padding: 7px;
-  font-size: 16px;
+  padding: 5px;
+  font-size: 15px!important;
 }
 
 .comment-input {
