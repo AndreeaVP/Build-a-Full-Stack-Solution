@@ -31,7 +31,7 @@
             <div class="post-container-border">
               <div class="user-section">
                 <img v-if="post.user_image" crossorigin="anonymous" :src="post.user_image" alt="User Profile Image" class="profile-image-display-post" />
-                <font-awesome-icon v-else :icon="['fas', 'user']" class="user-icon"/>
+                <font-awesome-icon v-else :icon="['fas', 'user']" class="user-icon-posts"/>
                 <div class="user-details">
                   <div class="user-name">{{ user.firstname }} {{ user.lastname }}</div>
                   <div class="post-date">{{ formatDate(post.created_at) }}</div>
@@ -43,6 +43,7 @@
              </div>
 
               <img v-if="post.image_url" crossorigin="anonymous" :src="post.image_url" alt="Posted Image" class="post-image" />
+            </div>
       
               <!-- Like and Comment Section -->
               <div class="like-comment-section">
@@ -94,7 +95,6 @@
 
                   <div class="comment-text">{{ comment.comment }}</div>
                 </div>
-              </div>
             </div>
           </div>
         </div>
