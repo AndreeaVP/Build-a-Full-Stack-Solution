@@ -115,7 +115,7 @@
   }
 
   .save-post-icon {
-    font-size: 24px; 
+    font-size: 20px; 
     color: rgb(5, 160, 5);
     cursor: pointer; 
     padding: 10px;
@@ -130,10 +130,10 @@
 
   .update-post-input {
     width: 70%;
-    margin: 15px 0 0;
+    margin: 15px 0 10px 0;
     border: 1px solid #e0e0e0;
     border-radius: 10px;
-    padding: 10px;
+    padding: 7px 15px 0 15px;
   }
   
   .post-image {
@@ -282,4 +282,15 @@
   .comment-text {
     display: flex;
     align-items: flex-start;
+  }
+
+  @media (max-width: 768px) {
+    .save-post-icon {
+      font-size: 17px;
+      padding: 7px;
+    }
+
+    .update-post-input {
+      margin: 10px 0 5px;
+    }
   }
