@@ -43,10 +43,25 @@
           <!-- Profile Details Section -->
           <div v-if="activeSection === 'profile'" class="profile-details-section">
             <div class="profile-image-section">
-              <h3>{{ user.image_url ? 'Update Image' : 'Upload an Image' }}</h3>
+              <h3 class="update-image-header">{{ user.image_url ? 'Update Image' : 'Upload an Image' }}</h3>
               <img crossorigin="anonymous" :src="user.image_url" alt="Profile Image" class="update-profile-image">
               <div class="change-image-button">
                 <button>{{ user.image_url ? 'Change Your Image' : 'Upload an Image' }}</button>
+              </div>
+
+              <hr class="image-name-separator">
+
+              <div class="update-profile-details">
+                <h3 class="update-name-header">Change Name</h3>
+                <div class="update-firstname">
+                  <label for="firstName">First Name:</label>
+                  <input type="text" id="firstName" v-model="user.firstName">
+                </div>
+                <div class="update-lastname">
+                  <label for="lastName">Last Name:</label>
+                  <input type="text" id="lastName" v-model="user.lastName">
+                </div>
+                <button @click="updateName">Update Name</button>
               </div>
             </div>
           </div>
@@ -306,6 +321,40 @@ export default {
       await postUtils.fetchLikes.call(this, post);
     },
 
+    async updateName() {
+    const token = localStorage.getItem('token');
+    const userId = this.$store.state.user.user_id;
+    
+    try {
+      const response = await axios.put(
+        `/api/user/${userId}`,
+        {
+          firstName: this.user.firstName,
+          lastName: this.user.lastName,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        this.successMessage = 'Name updated successfully.';
+        this.errorMessage = '';
+        this.user.firstName = '';
+        this.user.lastName = '';
+        this.closeSettings();
+        setTimeout(() => {
+            this.successMessage = '';
+          }, 1500);
+      }
+    } catch (error) {
+      console.error('Error updating name:', error);
+      this.errorMessage = 'Failed to update name. Please try again.';
+    }
+  },
+
     async changePassword() {
       const token = localStorage.getItem('token');
 
@@ -323,6 +372,7 @@ export default {
           this.successMessage = 'Password changed successfully.';
           this.errorMessage = '';
           this.newPassword = '';
+          this.closeSettings();
           setTimeout(() => {
             this.successMessage = '';
           }, 1500);
@@ -351,6 +401,7 @@ export default {
         if (response.status === 200) {
           this.successMessage = response.data.message;
           this.errorMessage = '';
+          this.closeSettings();
           setTimeout(() => {
             this.successMessage = '';
             this.$router.push({ name: 'login' });
@@ -362,6 +413,10 @@ export default {
         console.error('Error deleting user account:', error);
       }
     },
+
+  isCurrentUserComment(comment) {
+    return comment.user_id === this.$store.state.user.user_id;
+  },
 
   async confirmDeleteComment(comment) {
     const confirmed = window.confirm("Are you sure you want to delete this comment?");
@@ -410,10 +465,6 @@ export default {
       console.error('Error deleting comment:', error);
       this.errorMessage = 'An error occurred while deleting the comment. Please try again.';
     }
-  },
-
-  isCurrentUserComment(comment) {
-    return comment.user_id === this.$store.state.user.user_id;
   },
 },
 
@@ -526,6 +577,15 @@ export default {
   margin-bottom: 10px;
 }
 
+.update-image-header, .update-name-header {
+  margin:10px 0;
+}
+
+.image-name-separator {
+  width: 70%;
+  border: 1px solid purple;
+}
+
 .profile-image-section {
   text-align: center;
 }
@@ -550,6 +610,49 @@ export default {
   margin-top: 10px;
   cursor: pointer;
 }
+
+.update-profile-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 10px;
+}
+
+h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.update-firstname, .update-lastname {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+label {
+  font-size: 14px;
+  margin-right: 4px;
+}
+
+input {
+  width: 200px;
+  padding: 5px;
+}
+
+button {
+  background-color: #4caf50;
+  color: white;
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
 
 .change-password-section {
   margin-top: 20px;
