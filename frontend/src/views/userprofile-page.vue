@@ -54,14 +54,14 @@
               <div class="update-profile-details">
                 <h3 class="update-name-header">Change Name</h3>
                 <div class="update-firstname">
-                  <label for="firstName">First Name:</label>
-                  <input type="text" id="firstName" v-model="user.firstName">
+                  <label class="settings-label" for="firstName">First Name:</label>
+                  <input class="settings-input" type="text" id="firstName" v-model="user.firstName">
                 </div>
                 <div class="update-lastname">
-                  <label for="lastName">Last Name:</label>
-                  <input type="text" id="lastName" v-model="user.lastName">
+                  <label class="settings-label" for="lastName">Last Name:</label>
+                  <input class="settings-input" type="text" id="lastName" v-model="user.lastName">
                 </div>
-                <button @click="updateName">Update Name</button>
+                <button class="settings-button" @click="updateName">Update Name</button>
               </div>
             </div>
           </div>
@@ -69,13 +69,13 @@
           <!-- Change Password Section -->
           <div v-if="activeSection === 'password'" class="change-password-section">
             <div class="change-password-section">
-              <h3>Change Password</h3>
+              <h3 class="change-password-header">Change Password</h3>
               <div class="new-password-container">
-                <label for="newPassword">Your New Password</label>
-                <input type="password" id="newPassword" v-model="newPassword">
+                <label class="settings-label" for="newPassword">Your New Password</label>
+                <input class="settings-input" type="password" id="newPassword" v-model="newPassword">
               </div>
               <div class="submit-button-container">
-                <button @click="changePassword">Submit</button>
+                <button class="settings-button" @click="changePassword">Submit</button>
               </div>
             </div>  
           </div>          
@@ -83,9 +83,9 @@
           <!-- Delete Account Section -->
           <div v-if="activeSection === 'delete'" class="delete-account-section">
             <div class="delete-account-section">
-              <h3>Delete Account</h3>
+              <h3 class="delete-account-header">Delete Account</h3>
               <div class="delete-button-container">
-                <button @click="deleteAccount">Delete Account</button>
+                <button class="settings-button" @click="deleteAccount">Delete Account</button>
               </div>
             </div>
           </div>
@@ -124,7 +124,7 @@
                 </div>
               </div>
 
-              <font-awesome-icon v-if="post.showOptions" icon="ellipsis-h" class="ellipsis-icon" @click="toggleOptions(post)"/>
+              <font-awesome-icon icon="ellipsis-h" class="ellipsis-icon" @click="toggleOptions(post)"/>
             </div>
             <div>
               <font-awesome-icon v-if="editingPostId === post.post_id" :icon="['fas', 'check']" class="save-post-icon" @click="updatePostText(post)" />
@@ -137,6 +137,7 @@
             <textarea v-else v-model="newTextualPost" class="update-post-input"></textarea>
 
             <img v-if="post.image_url" crossorigin="anonymous" :src="post.image_url" alt="Posted Image" class="post-image" />
+          </div>
 
             <!-- Like and Comment Section -->
             <div class="like-comment-section">
@@ -189,7 +190,6 @@
                 <div class="comment-text">{{ comment.comment }}</div>
               </div>
             </div>
-          </div>
         </div>
       </div>
 
@@ -239,10 +239,19 @@ export default {
 
     showSection(section) {
     this.activeSection = section;
-  },
+    },
 
     changeProfileImage() {
       // change the profile image
+    },
+
+    toggleEditMode(post) {
+      this.editingPostId = post.post_id;
+      this.newTextualPost = post.textual_post;
+    },
+
+    toggleOptions(post) {
+      post.showOptions = !post.showOptions;
     },
 
     editComment(comment) {
@@ -257,6 +266,25 @@ export default {
     formatDate(dateTimeString) {
       const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
       return new Date(dateTimeString).toLocaleDateString(undefined, options);
+    },
+
+    async fetchUserData() {
+      const token = localStorage.getItem('token');
+      const userId = this.$store.state.user.user_id;
+
+      try {
+        const response = await axios.get(`/api/user/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.status === 200) {   
+          this.user = response.data.user;
+        }
+      } catch (error) {
+          console.error('Error fetching user data:', error);
+      }
     },
 
     async fetchUserPosts(userId) {
@@ -283,6 +311,7 @@ export default {
               await this.fetchComments(post);
               await this.fetchLikes(post);
             }));
+            this.userPosts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
           } else if (response.status === 404) {
             this.userPosts = [];
             this.errorMessage = 'No posts available for this user.';
@@ -295,7 +324,7 @@ export default {
           console.error('Error fetching user posts:', error);
           this.errorMessage = 'Error fetching user posts. Please try again.';
       }
-    },
+    },  
 
     async addComment(post) {
       await postUtils.addComment.call(this, post);
@@ -322,17 +351,14 @@ export default {
     },
 
     async updateName() {
-    const token = localStorage.getItem('token');
-    const userId = this.$store.state.user.user_id;
+      const token = localStorage.getItem('token');
+      const userId = this.$store.state.user.user_id;
     
-    try {
-      const response = await axios.put(
-        `/api/user/${userId}`,
-        {
+      try {
+        const response = await axios.put(`/api/user/${userId}`,{
           firstName: this.user.firstName,
-          lastName: this.user.lastName,
-        },
-        {
+          lastName: this.user.lastName,},
+          {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -340,6 +366,7 @@ export default {
       );
 
       if (response.status === 200) {
+        await this.fetchUserData();
         this.successMessage = 'Name updated successfully.';
         this.errorMessage = '';
         this.user.firstName = '';
@@ -349,11 +376,11 @@ export default {
             this.successMessage = '';
           }, 1500);
       }
-    } catch (error) {
-      console.error('Error updating name:', error);
-      this.errorMessage = 'Failed to update name. Please try again.';
-    }
-  },
+      } catch (error) {
+        console.error('Error updating name:', error);
+        this.errorMessage = 'Failed to update name. Please try again.';
+      }
+    },
 
     async changePassword() {
       const token = localStorage.getItem('token');
@@ -414,30 +441,30 @@ export default {
       }
     },
 
-  isCurrentUserComment(comment) {
-    return comment.user_id === this.$store.state.user.user_id;
-  },
+    isCurrentUserComment(comment) {
+      return comment.user_id === this.$store.state.user.user_id;
+    },
 
-  async confirmDeleteComment(comment) {
-    const confirmed = window.confirm("Are you sure you want to delete this comment?");
+    async confirmDeleteComment(comment) {
+      const confirmed = window.confirm("Are you sure you want to delete this comment?");
 
-    if (!confirmed) {
-      return;
-    }
+      if (!confirmed) {
+        return;
+      }
 
-    try {
-      const token = localStorage.getItem('token');
-      const userId = this.$store.state.user.user_id;
-      const commentId = comment.comment_id;
+      try {
+        const token = localStorage.getItem('token');
+        const userId = this.$store.state.user.user_id;
+        const commentId = comment.comment_id;
 
-      const response = await axios.delete(`/api/comments/${commentId}`, {
-        data: {
-          userId,
-        },
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+        const response = await axios.delete(`/api/comments/${commentId}`, {
+          data: {
+            userId,
+          },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
       if (response.status === 200) {
         const postContainingComment = this.userPosts.find(post =>
@@ -461,12 +488,89 @@ export default {
         console.error('Error deleting comment:', response);
         this.errorMessage = 'Failed to delete comment. Please try again.';
       }
-    } catch (error) {
-      console.error('Error deleting comment:', error);
-      this.errorMessage = 'An error occurred while deleting the comment. Please try again.';
+      } catch (error) {
+        console.error('Error deleting comment:', error);
+        this.errorMessage = 'An error occurred while deleting the comment. Please try again.';
+      }
+    },
+
+    async updatePostText(post) {
+      try {
+        const postId = post.post_id;
+        const updatedText = this.newTextualPost;
+
+        if (!updatedText.trim()) {
+          this.errorMessage = 'Post text cannot be empty.';
+          return;
+        }
+
+        const token = localStorage.getItem('token');
+
+        const response = await axios.put(`/api/posts/${postId}`, {
+          textual_post: updatedText,
+        }, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.status === 200) {
+          post.showOptions = false;
+          this.successMessage = 'Post updated successfully';
+          this.errorMessage = '';
+          this.editingPostId = null;
+          await this.fetchUserPosts(this.$store.state.user.user_id);
+          setTimeout(() => {
+            this.successMessage = '';
+          }, 1500);
+        } else {
+          this.successMessage = '';
+          this.errorMessage = 'Failed to update the post';
+        }
+      } catch (error) {
+        console.error('Error updating post:', error);
+        this.successMessage = '';
+        this.errorMessage = 'Error updating the post';
+      }
+    },
+  
+    async confirmDeletePost(post) {
+      try {
+        const confirmation = confirm('Are you sure you want to delete this post?');
+  
+      if (confirmation) {
+        await this.deletePost(post);
+      }
+      } catch (error) {
+        console.error('Error confirming delete:', error);
+      }
+    },
+  
+    async deletePost(post) {
+      try {
+        const token = this.$store.state.token || localStorage.getItem('token');
+        const headers = {
+          Authorization: `Bearer ${token}`,
+        };
+  
+        const response = await axios.delete(`/api/posts/${post.post_id}`, { headers });
+  
+        if (response.status === 200) {
+          this.successMessage = 'Post deleted successfully';
+          this.errorMessage = '';
+          this.userPosts = this.userPosts.filter(userPost => userPost.post_id !== post.post_id);
+          setTimeout(() => {
+            this.successMessage = '';
+          }, 1500);
+        } else {
+          this.errorMessage = 'Failed to delete the post';
+        }
+      } catch (error) {
+        console.error('Error deleting the post:', error);
+        this.errorMessage = 'Error deleting the post.';
+      }
     }
   },
-},
 
   async created() {
     this.loading = true;
@@ -553,6 +657,7 @@ export default {
 .icon-settings {
   margin-left: auto;
   cursor: pointer;
+  margin-right: 30px;
 }
 
 .settings-container {
@@ -583,7 +688,7 @@ export default {
 
 .image-name-separator {
   width: 70%;
-  border: 1px solid purple;
+  border: 1px solid rgb(243, 25, 243);
 }
 
 .profile-image-section {
@@ -618,7 +723,8 @@ export default {
   margin-top: 10px;
 }
 
-h3 {
+.change-password-header,
+.delete-account-header {
   font-size: 18px;
   margin-bottom: 10px;
 }
@@ -630,17 +736,17 @@ h3 {
   margin-bottom: 5px;
 }
 
-label {
+.settings-label {
   font-size: 14px;
   margin-right: 4px;
 }
 
-input {
+.settings-input {
   width: 200px;
   padding: 5px;
 }
 
-button {
+.settings-button {
   background-color: #4caf50;
   color: white;
   padding: 10px;
@@ -649,7 +755,7 @@ button {
   border-radius: 5px;
 }
 
-button:hover {
+.settings-button:hover {
   background-color: #45a049;
 }
 
@@ -726,6 +832,10 @@ button:hover {
 
   .user-icon {
   font-size: 25px;
+  }
+
+  .icon-settings {
+    margin-right: 10px;
   }
 }
 
