@@ -216,11 +216,11 @@ export default {
 
 .user-icon-search-page {
   color: white;  
-  background-color: black;
+  background-color: rgb(121, 120, 120);
   font-size: 30px;
-  padding: 10px;
+  padding: 10px 12px;
   border-radius: 50%;
-  margin-right: 30px;
+  margin-left: 20px;
 }
 
 .user-image-search {
