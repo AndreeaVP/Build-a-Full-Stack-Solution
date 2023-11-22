@@ -44,7 +44,10 @@
           <div v-if="activeSection === 'profile'" class="profile-details-section">
             <div class="profile-image-section">
               <h3 class="update-image-header">{{ user.image_url ? 'Update Image' : 'Upload an Image' }}</h3>
-              <img crossorigin="anonymous" :src="user.image_url" alt="Profile Image" class="update-profile-image">
+              <img v-if="user.image_url" crossorigin="anonymous" :src="user.image_url" alt="Profile Image" class="update-profile-image"/>
+              <div v-else class="default-profile-icon">
+                <font-awesome-icon :icon="['fas', 'user']" class="user-icon-settings-update"/>
+              </div>              
               <div class="change-image-button">
                 <button>{{ user.image_url ? 'Change Your Image' : 'Upload an Image' }}</button>
               </div>
@@ -686,6 +689,14 @@ export default {
   margin:10px 0;
 }
 
+.user-icon-settings-update {
+  font-size: 25px;
+  padding: 7px;
+  background-color: black;
+  color: white;
+
+}
+
 .image-name-separator {
   width: 70%;
   border: 1px solid rgb(243, 25, 243);
@@ -697,8 +708,8 @@ export default {
 
 .update-profile-image {
   max-width: 100%;
-  max-height: 150px;
-  margin: 10px 0 15px 0;
+  max-height: 120px;
+  margin: 10px 0 0;
 }
 
 .settings-container button {
