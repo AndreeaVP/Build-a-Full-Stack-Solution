@@ -6,33 +6,34 @@
 
     <div class="navbar">
       <ul class="nav-list">
-        <li>
+        <li role="menuitem">
           <router-link to="/home">
             <span v-if="isLargeScreen" class="nav-item-text">Home</span>
-            <font-awesome-icon v-if="isSmallScreen" class="icon" :icon="['fas', 'home']" />
+            <font-awesome-icon v-if="isSmallScreen" class="icon" :icon="['fas', 'home']" aria-label="Home"/>
           </router-link>
         </li>
-        <li>
+        <li role="menuitem">
           <router-link to="/search">
             <span v-if="isLargeScreen" class="nav-item-text">Search</span>
-            <font-awesome-icon v-if="isSmallScreen" class="icon" :icon="['fas', 'search']" />
+            <font-awesome-icon v-if="isSmallScreen" class="icon" :icon="['fas', 'search']" aria-label="Search"/>
           </router-link>
         </li>
-        <li>
+        <li role="menuitem">
           <router-link to="/notification">
             <span v-if="isLargeScreen" class="nav-item-text">Notification</span>
-            <font-awesome-icon v-if="isSmallScreen" class="icon" :icon="['fas', 'bell']" />
+            <font-awesome-icon v-if="isSmallScreen" class="icon" :icon="['fas', 'bell']" aria-label="Notification" />
           </router-link>
         </li>
-        <li>
+        <li role="menuitem">
           <router-link to="/myprofile">
             <span v-if="isLargeScreen" class="nav-item-text">User Profile</span>
-            <font-awesome-icon v-if="isSmallScreen" class="icon" :icon="['fas', 'user']" />
+            <font-awesome-icon v-if="isSmallScreen" class="icon" :icon="['fas', 'user']" aria-label="User Profile"/>
           </router-link>
         </li>
       </ul>
 
       <button @click="logout" class="logout-button">
+        <span class="visually-hidden">Log out</span>
         <font-awesome-icon class="icon" :icon="['fas', 'power-off']" />
       </button>
     </div>
@@ -118,7 +119,7 @@ export default {
 }
 
 .logout-button {
-  background-color: red;
+  background-color: darkred;
   color: white;
   padding: 5px 10px;
   border: none;
@@ -129,6 +130,17 @@ export default {
 
 .icon {
   font-size: 15px;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
 }
 
 @media (max-width: 1000px) and (min-width: 769px) {
