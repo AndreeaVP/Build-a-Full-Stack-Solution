@@ -170,6 +170,7 @@ export default {
   font-size: 16px;
   border: none; 
   outline: none; 
+  border: 1px solid transparent;
 }
 
 .icon-search {
@@ -261,7 +262,7 @@ export default {
 }
 
 .no-results {
-  border: 2px solid red;
+  border: 1px solid red;
   border-radius: 5px;
 }
 
