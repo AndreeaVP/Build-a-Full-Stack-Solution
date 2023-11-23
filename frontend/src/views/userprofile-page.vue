@@ -19,8 +19,8 @@
         </div>
 
         <div class="profile-info">
-          <p>{{ user.firstname }} {{ user.lastname }}</p>
-          <p class="email">{{ user.email }}</p>
+          <p class="user-first-last-name">{{ user.firstname }} {{ user.lastname }}</p>
+          <p class="email-user">{{ user.email }}</p>
         </div>
 
         <font-awesome-icon @click="toggleSettings" :icon="['fas', 'sliders']" class="icon-settings" v-if="!showSettings" />
@@ -733,9 +733,20 @@ export default {
   border-radius: 5px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
   max-width: 60%;
-  margin: 110px auto 30px auto;
-  background: linear-gradient(204deg, rgb(118 125 255) 55%, rgb(142, 241, 147) 100%);
+  margin: 110px auto 10px auto;
+  background: linear-gradient(90deg, #f0f0f0, #e0e0e0);
   color: #000;
+}
+
+.user-first-last-name {
+  color: black;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.email-user {
+  color: black;
+  margin-top: 10px;
 }
 
 .icon-settings {
@@ -945,12 +956,14 @@ export default {
 @media (max-width: 1200px) and (min-width: 1001px) {
   .user-myprofile {
      max-width: 80%;
+     margin-top: 100px;
   }
 } 
 
 @media (max-width: 1000px) and (min-width: 769px) {
   .user-myprofile {
     max-width: 85%;
+    margin-top: 100px;
   }
 }
 
@@ -958,6 +971,7 @@ export default {
   .user-myprofile {
     max-width: 100%;
     margin-top: 80px;
+    margin-bottom: 5px;
   }
 
   .user-icon {
@@ -966,6 +980,14 @@ export default {
 
   .icon-settings {
     margin-right: 10px;
+  }
+
+  .user-first-last-name {
+    margin-top: 10px;
+  }
+
+  .email-user {
+    margin: 0;
   }
 }
 </style>
