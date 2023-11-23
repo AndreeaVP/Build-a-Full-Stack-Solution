@@ -29,7 +29,8 @@ exports.getUserById = (req, res) => {
   
 exports.updateUser = (req, res) => {
     const userId = req.params.id;
-    const { firstName, lastName, email, password, image_url } = req.body;
+    const { firstName, lastName, email, password } = req.body;
+    const image_url = req.file;
 
     const updateFields = {};
 
@@ -48,8 +49,9 @@ exports.updateUser = (req, res) => {
     }
     
     if (image_url) {
-        updateFields.image_url = image_url;
+      updateFields.image_url = `${req.protocol}://${req.get('host')}/images/${image_url.filename}`;
     }
+
 
     if (Object.keys(updateFields).length === 0) {
         return res.status(400).json({ error: 'No fields to update' });
@@ -64,8 +66,8 @@ exports.updateUser = (req, res) => {
         if (results.affectedRows === 0) {
             return res.status(404).json({ error: 'User not found' });
         }
-        res.status(200).json({ message: 'User profile updated successfully' });
-    });
+        res.status(200).json({ message: 'User profile updated successfully', image_url: updateFields.image_url });
+      });
 };
 
 exports.deleteUser = (req, res) => {
