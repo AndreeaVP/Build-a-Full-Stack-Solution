@@ -9,7 +9,8 @@
       <div class="user-profile">
         <img v-if="user && user.image_url" crossorigin="anonymous" :src="user.image_url" alt="Profile Image" class="profile-image" />
         <font-awesome-icon v-else :icon="['fas', 'user']" class="user-icon" />
-        <textarea class="post-input" placeholder="What's on your mind?" v-model="postContent"></textarea>
+        <label for="post-content" class="visually-hidden">What's on your mind?</label>
+        <textarea id="post-content" class="post-input" placeholder="What's on your mind?" v-model="postContent"></textarea>
       </div>
 
       <div class="uploaded-image-container">
