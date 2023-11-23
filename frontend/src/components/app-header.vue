@@ -119,7 +119,7 @@ export default {
 }
 
 .logout-button {
-  background-color: darkred;
+  background-color: rgb(206, 11, 11);
   color: white;
   padding: 5px 10px;
   border: none;
