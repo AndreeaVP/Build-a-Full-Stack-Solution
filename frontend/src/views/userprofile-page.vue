@@ -44,12 +44,26 @@
           <div v-if="activeSection === 'profile'" class="profile-details-section">
             <div class="profile-image-section">
               <h3 class="update-image-header">{{ user.image_url ? 'Update Image' : 'Upload an Image' }}</h3>
-              <img v-if="user.image_url" crossorigin="anonymous" :src="user.image_url" alt="Profile Image" class="update-profile-image"/>
+              <div class="image-container" v-if="user.image_url || selectedImage">
+                <img v-if="user.image_url" crossorigin="anonymous" :src="user.image_url" alt="Profile Image" class="update-profile-image"/>
+                <span v-if="selectedImage" class="remove-image-settings-container" @click="removeImage">
+                <font-awesome-icon :icon="['fas', 'times']" class="icon-remove-image" />
+                </span>
+              </div>              
               <div v-else class="default-profile-icon">
                 <font-awesome-icon :icon="['fas', 'user']" class="user-icon-settings-update"/>
-              </div>              
+              </div>  
+
+
+              <div class="image-upload-container-settings">
+                <label for="profileImage" class="label-profile-image-settings">Select Image 
+                  <font-awesome-icon :icon="['fas', 'camera']" class="icon-profile-upload-settings" />
+                </label>
+                <input ref="fileInput" type="file" id="profileImage" name="image_url" class="file-input-profile-image-settings" @change="handleFileChange"/>
+              </div>
+
               <div class="change-image-button">
-                <button>{{ user.image_url ? 'Change Your Image' : 'Upload an Image' }}</button>
+                <button @click="saveProfileChanges">Save Changes</button>
               </div>
 
               <hr class="image-name-separator">
@@ -217,6 +231,7 @@ export default {
       user: {
         image_url: null,
       },
+      selectedImage: null,
       loading: true,
       userPosts: [],
       comments: [],
@@ -270,6 +285,34 @@ export default {
       const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
       return new Date(dateTimeString).toLocaleDateString(undefined, options);
     },
+
+
+    handleFileChange(event) {
+    const fileInput = event.target;
+    const file = fileInput.files[0];
+
+    if (file) {
+      console.log('Selected File:', file);
+
+      const imageUrl = URL.createObjectURL(file);
+
+    this.selectedImage = file;
+    this.user.image_url = imageUrl;
+    } else {
+      console.log('No file selected.');
+
+    this.selectedImage = null;
+    this.user.image_url = null;
+    }
+  },
+
+  removeImage() {
+    this.selectedImage = null;
+    const input = this.$refs.fileInput;
+    input.value = '';
+    this.user.image_url = null;
+  },
+
 
     async fetchUserData() {
       const token = localStorage.getItem('token');
@@ -572,7 +615,57 @@ export default {
         console.error('Error deleting the post:', error);
         this.errorMessage = 'Error deleting the post.';
       }
+    },
+
+    async saveProfileChanges() {
+    const token = localStorage.getItem('token');
+    const userId = this.$store.state.user.user_id;
+
+    if (!this.selectedImage) {
+      this.errorMessage = 'Please select an image before saving changes.';
+      setTimeout(() => {
+        this.errorMessage = '';
+      }, 1500);
+    return;
+  }
+
+    try {
+      const formData = new FormData();
+      formData.append('image_url', this.selectedImage);
+
+      const response = await axios.put(`/api/user/${userId}`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      console.log('API Response:', response.data);
+
+      if (response.status === 200) {
+        this.successMessage = 'Profile image updated successfully.';
+        this.errorMessage = '';
+        this.closeSettings();
+
+        const updatedUserData = {
+        user_id: this.$store.state.user.user_id,
+        firstname: this.$store.state.user.firstname,
+        lastname: this.$store.state.user.lastname,
+        image_url: response.data.image_url,
+        };
+
+        await this.$store.commit('setUser', updatedUserData);
+        await this.fetchUserData();
+        await this.fetchUserPosts(userId);
+        setTimeout(() => {
+            this.successMessage = '';
+        }, 1500);
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      this.errorMessage = 'Failed to update profile. Please try again.';
     }
+  },
   },
 
   async created() {
@@ -596,6 +689,7 @@ export default {
       });
         this.user = response.data.user;
         await this.fetchUserPosts(userId);
+        await this.fetchUserData();
     } catch (error) {
       console.error("Error fetching user data:", error);
     } finally {
@@ -694,7 +788,44 @@ export default {
   padding: 7px;
   background-color: black;
   color: white;
+}
 
+.file-input-profile-image-settings {
+    display: none;
+}
+
+.image-upload-container-settings {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  border-radius: 5px;
+  padding: 7px 0;
+  cursor: pointer;
+}
+
+.label-profile-image-settings {
+  cursor: pointer;
+}
+
+.icon-profile-upload-settings{
+  cursor: pointer;
+  color: green;
+}
+
+.image-container {
+  position: relative;
+  display: inline-block;
+}
+
+.remove-image-settings-container {
+  color: red;
+  position: absolute;
+  top: -4px;
+  right: -10px;
+  padding: 5px;
+  cursor: pointer;
 }
 
 .image-name-separator {
@@ -707,9 +838,10 @@ export default {
 }
 
 .update-profile-image {
-  max-width: 100%;
+  width: 150px;
   max-height: 120px;
   margin: 10px 0 0;
+  object-fit: cover;
 }
 
 .settings-container button {
