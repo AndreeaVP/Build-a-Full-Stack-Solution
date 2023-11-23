@@ -8,7 +8,7 @@
     <section id="search" class="search">
       <h1 class="page-title">Search</h1>
       <form @submit.prevent="search" class="search-form">
-        <div class="input-container">
+        <div class="input-container" :class="{ 'no-results': filteredSearchResults.length === 0 && query.length >= 3 }">
           <font-awesome-icon :icon="['fas', 'circle-info']" class="info-icon" title="Enter at least 3 characters to start the search" />
           <input v-model="query" @input="search" type="text" placeholder="Search..." class="search-input">
           <font-awesome-icon :icon="['fas', 'search']" class="icon-search" @click="search" />
@@ -258,6 +258,10 @@ export default {
   left: 0;
   right: 0;
   z-index: 1;
+}
+
+.no-results {
+  border: 1px solid red;
 }
 
 @media (max-width: 1100px) and (min-width: 769px) {
