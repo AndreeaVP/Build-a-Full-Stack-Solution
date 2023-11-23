@@ -286,23 +286,17 @@ export default {
       return new Date(dateTimeString).toLocaleDateString(undefined, options);
     },
 
-
     handleFileChange(event) {
     const fileInput = event.target;
     const file = fileInput.files[0];
 
     if (file) {
-      console.log('Selected File:', file);
-
       const imageUrl = URL.createObjectURL(file);
-
-    this.selectedImage = file;
-    this.user.image_url = imageUrl;
+      this.selectedImage = file;
+      this.user.image_url = imageUrl;
     } else {
-      console.log('No file selected.');
-
-    this.selectedImage = null;
-    this.user.image_url = null;
+      this.selectedImage = null;
+      this.user.image_url = null;
     }
   },
 
@@ -312,7 +306,6 @@ export default {
     input.value = '';
     this.user.image_url = null;
   },
-
 
     async fetchUserData() {
       const token = localStorage.getItem('token');
@@ -639,8 +632,6 @@ export default {
           'Content-Type': 'multipart/form-data',
         },
       });
-
-      console.log('API Response:', response.data);
 
       if (response.status === 200) {
         this.successMessage = 'Profile image updated successfully.';
