@@ -8,9 +8,10 @@
     <section id="search" class="search">
       <h1 class="page-title">Search</h1>
       <form @submit.prevent="search" class="search-form">
+        <label for="search" class="visually-hidden">Search:</label>
         <div class="input-container" :class="{ 'no-results': filteredSearchResults.length === 0 && query.length >= 3 }">
           <font-awesome-icon :icon="['fas', 'circle-info']" class="info-icon" title="Enter at least 3 characters to start the search" />
-          <input v-model="query" @input="search" type="text" placeholder="Search..." class="search-input">
+          <input v-model="query" @input="search" type="text"  id="search" placeholder="Search..." class="search-input">
           <font-awesome-icon :icon="['fas', 'search']" class="icon-search" @click="search" />
         </div>
       </form>
@@ -144,7 +145,6 @@ export default {
 </script>
 
 <style scoped>
-
 .search {
   margin-top: 110px;
 }
@@ -261,8 +261,20 @@ export default {
 }
 
 .no-results {
-  border: 1px solid red;
+  border: 2px solid red;
+  border-radius: 5px;
 }
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+  }
 
 @media (max-width: 1100px) and (min-width: 769px) {
   .user-card {
@@ -315,5 +327,4 @@ export default {
   height: 40px;
 }
 }
-
 </style>
