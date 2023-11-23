@@ -7,7 +7,7 @@
 
     <div class="create-post">
       <div class="user-profile">
-        <img v-if="userProfileImage" crossorigin="anonymous" :src="userProfileImage" alt="Profile Image" class="profile-image" />
+        <img v-if="user && user.image_url" crossorigin="anonymous" :src="user.image_url" alt="Profile Image" class="profile-image" />
         <font-awesome-icon v-else :icon="['fas', 'user']" class="user-icon" />
         <textarea class="post-input" placeholder="What's on your mind?" v-model="postContent"></textarea>
       </div>
@@ -126,6 +126,7 @@
 <script>  
 import AppHeader from "@/components/app-header.vue";
 import * as postUtils from "@/utils/postUtils";
+import axios from "axios";
 
 export default {
   components: {
@@ -144,12 +145,10 @@ export default {
     }
     return null;
     },
-    userProfileImage() {
-      return this.$store.getters.getUserProfileImage;
-    },
   },
   data() {
     return {
+      user: null,
       postContent: '',
       selectedFile: null, 
       previewUrl: null,
@@ -198,6 +197,33 @@ export default {
     editComment(comment) {
       this.editingCommentId = comment.comment_id;
       this.editedComment = comment.comment;     
+    },
+
+    async fetchUserData() {
+      const token = localStorage.getItem('token');
+      const userId = this.$store.state.user.user_id;
+
+    try {
+      const response = await axios.get(`/api/user/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status === 200) {   
+        const user = response.data.user;
+        console.log('Fetched user data:', user);
+
+
+        this.$store.commit('setUser', user);
+        localStorage.setItem('user', JSON.stringify(user));
+        console.log('User data saved in localStorage:', user);
+
+        this.user = user;
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
     },
 
     async createPost() {
@@ -255,10 +281,10 @@ export default {
     async fetchLikes(post) {
       await postUtils.fetchLikes.call(this, post);
     },
-
   },
 
   created() {
+    this.fetchUserData();
     this.fetchPosts();
     this.loadPostsAndComments();
   },
