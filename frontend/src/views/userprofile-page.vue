@@ -192,10 +192,10 @@
                 </div>
 
                 <div class="comment-actions">
-                  <font-awesome-icon v-if="isCurrentUserComment(comment) && !comment.showOptions" icon="ellipsis-h" class="ellipsis-icon" @click="toggleOptionsComment(comment)" />
+                  <font-awesome-icon v-if="this.user && this.user.user_id === comment.user_id && !comment.showOptions" icon="ellipsis-h" class="ellipsis-icon" @click="toggleOptionsComment(comment)" />
                   <div class="comment-actions-container" v-if="comment.showOptions">
-                    <font-awesome-icon v-if="isCurrentUserComment(comment)" :icon="['fas', 'pencil-alt']" class="comment-edit-icon" @click="editComment(comment)" />
-                    <font-awesome-icon v-if="isCurrentUserComment(comment)" :icon="['fas', 'trash']" class="comment-delete-icon" @click="confirmDeleteComment(comment)" />
+                    <font-awesome-icon v-if="this.user && this.user.user_id === comment.user_id" :icon="['fas', 'pencil-alt']" class="comment-edit-icon" @click="editComment(comment)" />
+                    <font-awesome-icon v-if="this.user && this.user.user_id === comment.user_id" :icon="['fas', 'trash']" class="comment-delete-icon" @click="confirmDeleteComment(comment)" />
                   </div>
                 </div>
 
@@ -478,10 +478,6 @@ export default {
       } catch (error) {
         console.error('Error deleting user account:', error);
       }
-    },
-
-    isCurrentUserComment(comment) {
-      return comment.user_id === this.$store.state.user.user_id;
     },
 
     async confirmDeleteComment(comment) {
