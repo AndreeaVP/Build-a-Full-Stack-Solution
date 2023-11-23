@@ -26,7 +26,7 @@
         <font-awesome-icon @click="toggleSettings" :icon="['fas', 'sliders']" class="icon-settings" v-if="!showSettings" />
 
         <!-- Settings options -->
-        <div v-if="showSettings" class="settings-container">
+        <div v-if="showSettings" class="settings-container" :class="{ active: showSettings }">
           <div class="close-button-container">
             <font-awesome-icon :icon="['fas', 'times']" class="icon-close" @click="closeSettings" />
           </div>
@@ -257,10 +257,6 @@ export default {
 
     showSection(section) {
     this.activeSection = section;
-    },
-
-    changeProfileImage() {
-      // change the profile image
     },
 
     toggleEditMode(post) {
@@ -758,7 +754,7 @@ export default {
 .settings-container {
   position: absolute;
   top: 0px;
-  right: 20px;
+  right: 0px;
   background-color: white;
   border: 1px solid #e0e0e0;
   border-radius: 5px;
@@ -864,10 +860,16 @@ export default {
   margin-top: 10px;
 }
 
-.change-password-header,
+.change-password-header {
+  font-size: 18px;
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
 .delete-account-header {
   font-size: 18px;
-  margin-bottom: 10px;
+  margin-top: 0;
+  margin-bottom: 5px;
 }
 
 .update-firstname, .update-lastname {
@@ -879,7 +881,7 @@ export default {
 
 .settings-label {
   font-size: 14px;
-  margin-right: 4px;
+  margin-right: 5px;
 }
 
 .settings-input {
@@ -900,9 +902,8 @@ export default {
   background-color: #45a049;
 }
 
-
 .change-password-section {
-  margin-top: 20px;
+  margin-top: 5px;
 }
 
 .new-password-container {
@@ -921,7 +922,7 @@ export default {
 }
 
 .delete-account-section {
-  margin-top: 20px;
+  margin-top: 5px;
 }
 
 .separator {
@@ -965,6 +966,35 @@ export default {
     max-width: 85%;
     margin-top: 100px;
   }
+
+  .settings-container {
+    width: 60%;
+    max-width: none;
+  }
+
+  .menu-item {
+    padding: 7px;
+  }
+
+  .update-image-header, .update-name-header {
+    font-size: 17px;
+  }
+
+  .change-password-header {
+    font-size: 17px;
+  }
+
+  .settings-label {
+    margin-right: 3px;
+  }
+
+  #newPassword {
+    margin-left: 0;
+  }
+
+  .delete-account-header {
+    font-size: 17px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -974,12 +1004,31 @@ export default {
     margin-bottom: 5px;
   }
 
+  .settings-container.active {
+    position: fixed;
+    top: 80px;
+    right: 10px;
+    width: 70%;
+    max-width: none;
+    max-height: 100%;
+  }
+
+  .account-image {
+    margin-left: 0px!important;
+  }
+
   .user-icon {
   font-size: 25px!important;
   }
 
   .icon-settings {
     margin-right: 10px;
+  }
+
+  .settings-navigation {
+    flex-direction: column;
+    width: 100%;
+    padding: 5px;
   }
 
   .user-first-last-name {
