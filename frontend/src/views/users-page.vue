@@ -353,7 +353,7 @@ export default {
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
   max-width: 60%;
   margin: 110px auto 30px auto;
-  background: linear-gradient(120deg,  #ffc4cf,#c6fbcb);
+  background: linear-gradient(278deg, rgb(151, 241, 155) 15%, rgb(111, 140, 247) 60%);
   color: #000;
 }
 
