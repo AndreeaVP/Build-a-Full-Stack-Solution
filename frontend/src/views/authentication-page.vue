@@ -16,12 +16,14 @@
 
           <div class="form-field">
             <font-awesome-icon class="icon" icon="envelope" />
-          <input class="input-field" type="email" id="email" v-model="loginData.email" placeholder="E-mail: example@yahoo.com" @focus="clearPlaceholder('email')" required/>
+            <label for="email" class="visually-hidden"> Email</label>
+            <input class="input-field" type="email" id="email" v-model="loginData.email" placeholder="E-mail: example@yahoo.com" @focus="clearPlaceholder('email')" required/>
           </div>
 
           <div class="form-field">
             <font-awesome-icon class="icon" icon="lock" />
-          <input class="input-field" type="password" id="password" v-model="loginData.password" placeholder="Password" @focus="clearPlaceholder('password')" required/>
+            <label for="password" class="visually-hidden">Password</label>
+            <input class="input-field" type="password" id="password" v-model="loginData.password" placeholder="Password" @focus="clearPlaceholder('password')" required/>
           </div>
 
           <button @click="login" class="submit-button">Login</button>
@@ -35,27 +37,41 @@
 
           <div class="form-field">
             <font-awesome-icon class="icon" icon="user-circle" />
-          <input class="input-field" type="text" id="firstName" v-model="signupData.firstName" placeholder="First Name" @focus="clearPlaceholder('firstName')"/>
+            <label for="firstName" class="visually-hidden">First name</label>
+            <input class="input-field" type="text" id="firstName" v-model="signupData.firstName" placeholder="First Name" @focus="clearPlaceholder('firstName')"/>
+            <span class="required-field">*</span>
           </div>
 
           <div class="form-field">
             <font-awesome-icon class="icon" icon="user-circle" />
-          <input class="input-field" type="text" id="lastName" v-model="signupData.lastName" placeholder="Last Name" @focus="clearPlaceholder('lastName')"/>
+            <label for="lastName" class="visually-hidden">Last name</label>
+            <input class="input-field" type="text" id="lastName" v-model="signupData.lastName" placeholder="Last Name" @focus="clearPlaceholder('lastName')"/>
+            <span class="required-field">*</span>
           </div>
 
           <div class="form-field">
             <font-awesome-icon class="icon" icon="envelope" />
-          <input class="input-field" type="email" id="email" v-model="signupData.email" placeholder="E-mail: example@yahoo.com" @focus="clearPlaceholder('email')" required/>
+            <label for="email" class="visually-hidden">Email</label>
+            <input class="input-field" type="email" id="email" v-model="signupData.email" placeholder="E-mail: example@yahoo.com" @focus="clearPlaceholder('email')" required/>
+            <span class="required-field">*</span>
           </div>
 
           <div class="form-field">
             <font-awesome-icon class="icon" icon="lock" />
-          <input class="input-field" type="password" id="password" v-model="signupData.password" placeholder="Password (8 characters long)" @focus="clearPlaceholder('password')" required/>
+            <label for="password" class="visually-hidden">Password</label>
+            <input class="input-field" type="password" id="password" v-model="signupData.password" placeholder="Password (8 characters long)" @focus="clearPlaceholder('password')" required/>
+            <span class="required-field">*</span>
           </div>
 
           <div class="form-field">
             <font-awesome-icon class="icon" icon="lock" />
-          <input class="input-field" type="password" id="confirmPassword" v-model="signupData.confirmPassword" placeholder="Confirm Password" @focus="clearPlaceholder('confirmPassword')" required/>
+            <label for="confirmPassword" class="visually-hidden">Confirm Password</label>
+            <input class="input-field" type="password" id="confirmPassword" v-model="signupData.confirmPassword" placeholder="Confirm Password" @focus="clearPlaceholder('confirmPassword')" required/>         
+            <span class="required-field">*</span>
+          </div>
+
+          <div class="form-legend">
+            <p>Fields marked with <span class="form-legend-asterisk">*</span> are required.</p>
           </div>
 
           <hr class="authentication-separator">
@@ -63,7 +79,7 @@
           <div class="form-field">
             <div class="profile-image-container">
               <div class="image-upload-container">
-                <label for="profileImage" class="label-profile-image">Upload Profile Image 
+                <label for="profileImage" class="label-profile-image">Upload Profile Image? 
                   <font-awesome-icon :icon="['fas', 'camera']" class="icon-profile-upload" />
                 </label>
                 <input ref="fileInput" type="file" id="profileImage" name="image_url" class="file-input-profile-image" @change="handleFileChange"/>
@@ -328,13 +344,26 @@ font-size: 23px;
   position: relative;
 }
 
-.input-field{
+.input-field {
+  position: relative;
   padding-left: 30px;
   height: 30px;
   width: 250px; 
   border-radius: 5px;
   border: 1px solid rgb(229, 230, 230);
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.required-field {
+  color: red;
+  position: absolute;
+  top: 50%;
+  right: 20%;
+  transform: translateY(-50%);
+}
+
+.form-legend-asterisk {
+  color: red;
 }
 
 .icon {
@@ -346,10 +375,6 @@ font-size: 23px;
   transform: translateY(-50%);
   z-index: 2;
   color: rgb(29, 2, 103);
-}
-
-.input-field:focus::placeholder {
-  color: transparent;
 }
 
 .submit-button {
@@ -449,11 +474,24 @@ font-size: 23px;
   color: red;
 }
 
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+  }
+
 @media (max-width: 768px) {
   .auth-container {
     margin: 0 20px;
   }
+
+  .required-field {
+    right: 13%
 }
-
-
+}
 </style>
