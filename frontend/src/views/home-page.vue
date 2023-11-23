@@ -212,13 +212,9 @@ export default {
 
       if (response.status === 200) {   
         const user = response.data.user;
-        console.log('Fetched user data:', user);
-
 
         this.$store.commit('setUser', user);
         localStorage.setItem('user', JSON.stringify(user));
-        console.log('User data saved in localStorage:', user);
-
         this.user = user;
       }
     } catch (error) {
