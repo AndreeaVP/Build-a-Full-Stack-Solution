@@ -2,7 +2,6 @@ import { createRouter, createWebHashHistory } from 'vue-router';
 import AuthenticationPage from '../views/authentication-page.vue';
 import HomePage from '../views/home-page.vue';
 import SearchPage from '../views/search-page.vue';
-import NotificationPage from '../views/notification-page.vue';
 import UserProfilePage from '../views/userprofile-page.vue';
 import UsersPage from '../views/users-page.vue';
 
@@ -21,11 +20,6 @@ const routes = [
     path: '/search',
     name: 'search',
     component: SearchPage, 
-  },
-  {
-    path: '/notification',
-    name: 'notification',
-    component: NotificationPage, 
   },
   {
     path: '/userspage/:user_id',
