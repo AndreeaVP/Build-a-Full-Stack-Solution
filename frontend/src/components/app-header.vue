@@ -19,12 +19,6 @@
           </router-link>
         </li>
         <li role="menuitem">
-          <router-link to="/notification">
-            <span v-if="isLargeScreen" class="nav-item-text">Notification</span>
-            <font-awesome-icon v-if="isSmallScreen" class="icon" :icon="['fas', 'bell']" aria-label="Notification" />
-          </router-link>
-        </li>
-        <li role="menuitem">
           <router-link to="/myprofile">
             <span v-if="isLargeScreen" class="nav-item-text">User Profile</span>
             <font-awesome-icon v-if="isSmallScreen" class="icon" :icon="['fas', 'user']" aria-label="User Profile"/>
