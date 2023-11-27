@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 dotenv.config({ path: '../.env' });
 
+
+// Signup handler
 exports.signup = (req, res) => {
     console.log(req.file);
     const { firstName, lastName, email, password } = req.body;
@@ -36,6 +38,7 @@ exports.signup = (req, res) => {
     }
 };
 
+// Login handler
 exports.login = (req, res) => {
     try {
         const { email, password } = req.body;
