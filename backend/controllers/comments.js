@@ -1,5 +1,6 @@
 const db = require('../config/database');
 
+// Create a new comment 
 exports.createComment = (req, res) => {
     const { postId, comment } = req.body;
     const userId = req.body.userId;
@@ -26,6 +27,7 @@ exports.createComment = (req, res) => {
     );
 };  
 
+// Update comment
 exports.updateComment = (req, res) => {
     const commentId = req.params.commentId;
     const { comment } = req.body;
@@ -47,6 +49,7 @@ exports.updateComment = (req, res) => {
     );
 };
 
+// Delete comment
 exports.deleteComment = (req, res) => {
   const commentId = req.params.commentId;
   const userId = req.body.userId;
@@ -69,6 +72,7 @@ exports.deleteComment = (req, res) => {
   );
 };
 
+// Get comment by post Id 
 exports.getCommentsByPostId = (req, res) => {
   const postId = req.params.postId;
 
