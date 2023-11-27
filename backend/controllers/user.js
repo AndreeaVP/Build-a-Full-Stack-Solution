@@ -1,6 +1,7 @@
 const db = require('../config/database');
 const bcrypt = require('bcrypt');
 
+// Get all users
 exports.getAllUsers = (req, res) => {
   db.query(
     `SELECT user_id, firstname, lastname, email, image_url, created_at FROM users WHERE active = 'true'`,
@@ -13,8 +14,9 @@ exports.getAllUsers = (req, res) => {
   );
 };
 
+// Get user by Id
 exports.getUserById = (req, res) => {
-    const userId = req.params.id;
+  const userId = req.params.id;
     db.query('SELECT * FROM users WHERE user_id = ?', [userId], (err, results) => {
       if (err) {
         return res.status(500).json({ error: err.message });
@@ -25,8 +27,9 @@ exports.getUserById = (req, res) => {
       const user = results[0];
       res.status(200).json({ user: { ...user, image_url: user.image_url } });
     });
-  };
-  
+};
+
+// Update user 
 exports.updateUser = (req, res) => {
     const userId = req.params.id;
     const { firstName, lastName, email, password } = req.body;
@@ -70,6 +73,7 @@ exports.updateUser = (req, res) => {
       });
 };
 
+// Delete user
 exports.deleteUser = (req, res) => {
   const userId = req.params.id;
 
@@ -103,4 +107,3 @@ exports.deleteUser = (req, res) => {
     });
   });
 };
-  
