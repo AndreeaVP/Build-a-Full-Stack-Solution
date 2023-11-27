@@ -5,6 +5,7 @@
     <div v-if="successMessage" class="success-message">{{ successMessage }}</div>
     <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
 
+    <!-- Create post section -->
     <div class="create-post">
       <div class="user-profile">
         <img v-if="user && user.image_url" crossorigin="anonymous" :src="user.image_url" alt="Profile Image" class="profile-image" />
@@ -29,6 +30,7 @@
       </div>
     </div>
 
+    <!-- Display posts -->
     <div class="post-container" v-for="post in posts" :key="post.post_id">
       <div class="post-container-border">
         <div class="user-section">
