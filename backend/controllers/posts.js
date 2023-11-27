@@ -1,6 +1,7 @@
 const db = require('../config/database');
 const fs = require('fs');
 
+// Create a new post
 exports.createPost = (req, res) => {
   const { user_id, textual_post } = req.body;
 
@@ -29,6 +30,7 @@ exports.createPost = (req, res) => {
   );
 };
 
+// Get all posts
 exports.getAllPosts = (req, res) => {
   const query = `
     SELECT p.*, u.firstname, u.lastname, u.image_url as user_image
@@ -44,6 +46,7 @@ exports.getAllPosts = (req, res) => {
   });
 };
 
+// Get posts by user Id
 exports.getPostsByUserId = (req, res) => {
   const userId = req.params.userId;
     
@@ -62,8 +65,9 @@ exports.getPostsByUserId = (req, res) => {
       res.status(200).json({ posts: results });
     }
   );
-  };  
+};  
 
+// Update post text
 exports.updatePost = (req, res) => {
     const postId = req.params.postId;
     const { textual_post } = req.body;
@@ -91,6 +95,7 @@ exports.updatePost = (req, res) => {
     });
 };  
 
+// Delete post
 exports.deletePost = (req, res) => {
   const postId = req.params.postId;
 
@@ -118,4 +123,3 @@ exports.deletePost = (req, res) => {
     });
   });
 };
-
