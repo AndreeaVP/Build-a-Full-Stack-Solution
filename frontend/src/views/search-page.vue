@@ -5,6 +5,7 @@
     <div v-if="successMessage" class="success-message">{{ successMessage }}</div>
     <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
 
+    <!-- Search input section -->
     <section id="search" class="search">
       <h1 class="page-title">Search</h1>
       <form @submit.prevent="search" class="search-form">
@@ -17,6 +18,7 @@
       </form>
     </section>
 
+    <!-- Display search results -->
     <section id="search-results">
       <div class="user-container">
         <div v-for="user in filteredSearchResults" :key="user.user_id" class="user-card" @click="navigateToUsersPage(user.user_id)">
