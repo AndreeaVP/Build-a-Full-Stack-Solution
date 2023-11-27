@@ -3,6 +3,7 @@
     <div class="auth-container">
       <div class="auth-form">
 
+        <!-- Welcome section -->
         <div class="welcome-section">
           <div v-if="successMessage" class="success-message-authentication">{{ successMessage }}</div>
           <div v-if="errorMessage" class="error-message-authentication">{{ errorMessage }}</div>
