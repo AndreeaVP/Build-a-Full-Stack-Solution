@@ -1,5 +1,6 @@
 const db = require('../config/database');
 
+// Like handler
 exports.createLike = (req, res) => {
   const { post_id, user_id } = req.body;
 
@@ -34,6 +35,7 @@ exports.createLike = (req, res) => {
   });
 };
 
+// Get likes by post Id
 exports.getLikesByPostId = (req, res) => {
   const postId = req.params.postId;
 
