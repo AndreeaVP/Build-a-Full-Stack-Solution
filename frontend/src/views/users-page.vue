@@ -2,6 +2,7 @@
     <div>
       <app-header></app-header>
 
+      <!-- Spinner -->
       <div v-if="loading" class="spinner-container">
         <div class="spinner">
           <font-awesome-icon icon="spinner" class="fa-spin fa-3x" />
@@ -12,6 +13,7 @@
         <div v-if="successMessage" class="success-message">{{ successMessage }}</div>
         <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
   
+        <!-- Display user details container -->
         <div class="users-profile">
           <div class="account-image">
             <img v-if="user.image_url" crossorigin="anonymous" :src="user.image_url" alt="User Profile Image" class="user-profile-image" />
@@ -45,7 +47,6 @@
               <img v-if="post.image_url" crossorigin="anonymous" :src="post.image_url" alt="Posted Image" class="post-image" />
             </div>
       
-              <!-- Like and Comment Section -->
               <div class="like-comment-section">
                 <div class="like-section">
                   <div @click="handleLikeAction(post)" class="like-icon" :class="{ 'liked': post.userLiked }">
@@ -63,13 +64,11 @@
                 </div>
               </div>   
 
-              <!-- Comment Input -->
               <div class="comment-input" v-if="post.showCommentInput">
                 <input type="text" class="comment-input-text" v-model="post.newComment" @keyup.enter="addComment(post)" placeholder="  Add a comment" />
                 <font-awesome-icon @click="addComment(post)" :icon="['fas', 'paper-plane']" class="save-comment" />
               </div>
 
-              <!-- Comments Section -->
               <div class="post-comments-section">
                 <div class="comment" v-for="comment in post.comments" :key="comment.comment_id">
                   <div class="comment-details-container">
