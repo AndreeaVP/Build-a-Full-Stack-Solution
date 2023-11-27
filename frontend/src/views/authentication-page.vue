@@ -157,7 +157,6 @@ export default {
     handleFileChange(event) {
       const fileInput = event.target;
       const file = fileInput.files[0];
-      console.log(file);
 
       if (file) {
         this.selectedImage = URL.createObjectURL(file);
