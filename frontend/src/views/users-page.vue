@@ -237,7 +237,7 @@ export default {
       await postUtils.fetchLikes.call(this, post);
     },
 
-    async deleteUserComment(comment) {
+    async confirmDeleteComment(comment) {
       const confirmed = window.confirm("Are you sure you want to delete this comment?");
 
   if (!confirmed) {
@@ -284,7 +284,6 @@ export default {
         this.errorMessage = 'An error occurred while deleting the comment. Please try again.';
     }
   },
-
   },
 
   async created() {
