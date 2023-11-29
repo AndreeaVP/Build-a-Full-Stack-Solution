@@ -20,7 +20,7 @@
         </li>
         <li role="menuitem">
           <router-link to="/myprofile">
-            <span v-if="isLargeScreen" class="nav-item-text">User Profile</span>
+            <span v-if="isLargeScreen" class="nav-item-text">My Profile</span>
             <font-awesome-icon v-if="isSmallScreen" class="icon" :icon="['fas', 'user']" aria-label="User Profile"/>
           </router-link>
         </li>
