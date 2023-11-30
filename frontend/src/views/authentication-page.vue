@@ -171,6 +171,7 @@ export default {
       this.selectedImage = null;
       const input = this.$refs.fileInput;
       input.value = '';
+      this.signupData.profileImage = null;
     },
 
     async signup() {
